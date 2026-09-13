@@ -33,7 +33,8 @@ jobs:
           path: coverage/lcov.info
   windows:
     needs: check
-    runs-on: windows-latest
+    # Flutter 3.35.7 supports the Visual Studio 2022 toolchain.
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
