@@ -1,5 +1,16 @@
 # Validation record / 验证记录
 
+## Update: 2026-09-13
+
+The repository is available and PR #1 is merged. Windows CI passed after pinning the runner to `windows-2022`, matching Flutter 3.35.7's Visual Studio support. Linux checks and all 26 Windows tests passed, and the portable ZIP plus SHA256 were generated and uploaded.
+
+- [Candidate CI #2](https://github.com/TolkmisLK/adb-device-desk/actions/runs/34754363185): passed; candidate `f8f4203c984f3c6192b10e3b40ac2e801dc79156`.
+- [Merged-main CI](https://github.com/TolkmisLK/adb-device-desk/actions/runs/34754760328): passed; main `69cd7fe0a2649218cb640dcaee63699995862fd6`.
+- The initial `windows-latest` build failed because this Flutter version selected an unsupported Visual Studio generator. The pinned runner resolved it; no test gate was removed.
+- GitHub Profile now links to the development preview. Portfolio integration is merged and deployment is being checked.
+
+Physical-device acceptance, clean-machine interactive launch and a public release remain pending. An attempted local artifact download returned HTTP 403, so local ZIP extraction/checksum inspection has not been claimed. CI validated the required bundle components during packaging. The earlier repository-access blocker below is historical and resolved.
+
 ## Checkpoint: 2026-09-12 (Asia/Shanghai)
 
 Environment: Linux, Flutter source tag 3.35.7, Dart 3.9.2. No physical Android device or Windows build host was available.
