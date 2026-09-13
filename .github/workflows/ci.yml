@@ -1,0 +1,54 @@
+name: Check and build
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - run: dart format --output=none --set-exit-if-changed lib test tool
+      - run: flutter analyze --fatal-infos
+      - run: dart tool/core_smoke.dart
+      - run: flutter test --coverage
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/lcov.info
+  windows:
+    needs: check
+    # Flutter 3.35.7 supports the Visual Studio 2022 toolchain.
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - run: flutter test
+      - name: Build portable package
+        shell: pwsh
+        run: ./tool/build-windows.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: adb-device-desk-windows-x64
+          path: dist/*
+          if-no-files-found: error
