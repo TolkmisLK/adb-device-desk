@@ -7,9 +7,13 @@ The repository is available and PR #1 is merged. Windows CI passed after pinning
 - [Candidate CI #2](https://github.com/TolkmisLK/adb-device-desk/actions/runs/34754363185): passed; candidate `f8f4203c984f3c6192b10e3b40ac2e801dc79156`.
 - [Merged-main CI](https://github.com/TolkmisLK/adb-device-desk/actions/runs/34754760328): passed; main `69cd7fe0a2649218cb640dcaee63699995862fd6`.
 - The initial `windows-latest` build failed because this Flutter version selected an unsupported Visual Studio generator. The pinned runner resolved it; no test gate was removed.
-- GitHub Profile now links to the development preview. Portfolio integration is merged and deployment is being checked.
+- GitHub Profile now links to the development preview. Portfolio integration is merged; [Pages quality and deployment](https://github.com/TolkmisLK/TolkmisLK.github.io/actions/runs/34755091034) both passed. A live visual inspection of the deployed website has not been completed.
 
-Physical-device acceptance, clean-machine interactive launch and a public release remain pending. An attempted local artifact download returned HTTP 403, so local ZIP extraction/checksum inspection has not been claimed. CI validated the required bundle components during packaging. The earlier repository-access blocker below is historical and resolved.
+Physical-device acceptance, clean-machine interactive launch and a public release remain pending. The earlier repository-access blocker below is historical and resolved.
+
+### Artifact verification: 2026-09-14 (Asia/Shanghai)
+
+Downloaded candidate CI artifact `10315984431` successfully using a fresh artifact reference. Extracted the outer archive and ran `sha256sum -c adb-device-desk-0.1.0-windows-x64.zip.sha256`: **OK**. The portable ZIP contains 18 entries including `adb_device_desk.exe`, Flutter engine and file-selector DLLs, ICU/application assets, three Visual C++ runtime DLLs, LICENSE and Windows quickstart. This supersedes the earlier HTTP 403 download attempt. Archive inspection is not Windows execution or physical-device acceptance.
 
 ## Checkpoint: 2026-09-12 (Asia/Shanghai)
 
@@ -57,10 +61,9 @@ The final command uses POSIX syntax. In PowerShell set `$env:CAPTURE_UI='1'` fir
 
 ## Remaining acceptance gates
 
-1. Make `TolkmisLK/adb-device-desk` available to the connected GitHub account. If absent, create that public repository; if it already exists, grant access. Do not paste credentials into chat.
-2. Upload the source, run Windows CI, inspect its actual result and ZIP contents, and launch the complete extracted bundle on a clean Windows x64 machine. The packaging script has not yet been executed on Windows.
-3. Perform the physical-device checklist in [RELEASING.md](RELEASING.md), including USB authorization, wireless pairing/connection, installation, PNG and log export.
-4. Only after those gates, publish an evidence-backed release and connect the Profile/portfolio. The workflow creates a draft with ZIP and SHA256, not an automatic public release.
+1. Launch the complete extracted bundle on a clean Windows x64 machine. Source upload, Windows CI build/packaging and archive/checksum inspection have passed.
+2. Perform the physical-device checklist in [RELEASING.md](RELEASING.md), including USB authorization, wireless pairing/connection, installation, PNG and log export.
+3. Only after those gates, publish an evidence-backed release. Profile/portfolio already link to the explicitly labeled development preview. The release workflow creates a draft with ZIP and SHA256, not an automatic public release.
 
 This is a tested source preview, not an accepted Windows release. No release exists at this checkpoint.
 
