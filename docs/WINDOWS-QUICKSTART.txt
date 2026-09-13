@@ -1,0 +1,23 @@
+ADB Device Desk 0.1.0
+
+1. Extract the whole archive, keeping DLL files and the data folder.
+2. Install Android SDK Platform-Tools from:
+   https://developer.android.com/tools/releases/platform-tools
+3. Start adb_device_desk.exe. In Settings select adb.exe and Verify and save.
+4. Connect your Android device over USB and authorize debugging, or follow
+   the Wireless guide for Android 11+ pairing and connection.
+
+中文：
+1. 完整解压，保留 DLL 文件与 data 文件夹。
+2. 从上方 Android 官方地址下载 Platform-Tools。
+3. 启动 adb_device_desk.exe，在设置中选择 adb.exe 并验证保存。
+4. 使用 USB 数据线并在设备上授权，或按无线连接向导配对、连接。
+
+Pairing and connection ports are different. Do not interchange them.
+配对端口与连接端口不同，请分别填写。
+
+Reports omit device identifiers. Raw device logs are NOT automatically redacted.
+诊断报告不包含设备标识；原始设备日志不会自动脱敏，分享前请检查。
+
+This portable build is not code-signed. Obtain builds from the project owner.
+No ADB executable is bundled. Third-party components retain their own licenses.
