@@ -1,5 +1,9 @@
 # Validation record / 验证记录
 
+## Windows startup candidate — 2026-09-14
+
+The package script now runs the extracted executable with a private test profile and no usable ADB path. New checks cover archive SHA-256, required bundle components, a visible native window, ten seconds of responsiveness, DLL loading from the extracted directory, and normal zero-code shutdown. This candidate is awaiting Windows CI execution. The local runtime is unavailable; no local Windows execution or visual inspection is claimed. The generated windows-startup.json explicitly marks physical-device and clean-machine checks false.
+
 ## Update: 2026-09-13
 
 The repository is available and PR #1 is merged. Windows CI passed after pinning the runner to `windows-2022`, matching Flutter 3.35.7's Visual Studio support. Linux checks and all 26 Windows tests passed, and the portable ZIP plus SHA256 were generated and uploaded.

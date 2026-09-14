@@ -40,6 +40,7 @@ try {
     Compress-Archive -Path "$bundle/*" -DestinationPath $zip -Force
     $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
     "$hash  $([IO.Path]::GetFileName($zip))" | Set-Content "$zip.sha256" -Encoding ascii
+    & (Join-Path $PSScriptRoot 'test-windows-startup.ps1') -ArchivePath $zip -ReportPath (Join-Path (Get-Location) 'dist/windows-startup.json')
     Write-Output $zip
 } finally {
     Pop-Location
