@@ -1,8 +1,12 @@
 # Validation record / 验证记录
 
-## Windows startup candidate — 2026-09-14
+## Actual Windows startup acceptance — 2026-09-15 (Asia/Shanghai)
 
-The package script now runs the extracted executable with a private test profile and no usable ADB path. New checks cover archive SHA-256, required bundle components, a visible native window, ten seconds of responsiveness, DLL loading from the extracted directory, and normal zero-code shutdown. This candidate is awaiting Windows CI execution. The local runtime is unavailable; no local Windows execution or visual inspection is claimed. The generated windows-startup.json explicitly marks physical-device and clean-machine checks false.
+[PR #2 CI](https://github.com/TolkmisLK/adb-device-desk/actions/runs/34866115172), candidate `9d8a9ec68fe555daf646eea3c66bd9b2a622d86f`: Linux checks and Windows tests/build/package/startup all passed. The Windows suite again reports 26 passed and the opt-in screenshot test skipped.
+
+The produced portable ZIP was checksum-verified and extracted into a fresh temporary directory on the Windows 2022 runner. The actual executable started with an isolated settings profile and a deliberately absent ADB path. It presented the expected visible native window (the runner shows it from Flutter's first-frame callback), remained responsive for ten seconds, loaded the Flutter engine/file-selector plugin/MSVC modules from the extracted bundle, and exited normally with code zero after a window-close request. The log explicitly records the successful gate; the ZIP artifact also contains windows-startup.json.
+
+This closes the previous no-Windows-execution gap. It is not clean-consumer-machine acceptance: the hosted runner includes developer tooling. No Android device was accessed and no new screenshot was visually reviewed in this run. The JSON explicitly marks physicalDeviceTested and cleanMachineTested false. Local execution was unavailable; these results came from the actual Windows CI runner.
 
 ## Update: 2026-09-13
 

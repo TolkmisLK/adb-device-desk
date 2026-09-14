@@ -6,7 +6,7 @@ Flutter 3.35.7 / Dart 3.9.2; locked dependencies, bilingual responsive desktop U
 
 ## Current candidate
 
-Packaging now invokes tool/test-windows-startup.ps1 against the actual portable ZIP. The script verifies the checksum, extracts into a new temporary directory, starts the real executable with a private generated settings profile and a deliberately absent ADB path, requires a visible window and ten responsive seconds, checks that engine/plugin/runtime modules load from the extracted bundle, and requests a normal zero-code exit. It writes a bounded JSON evidence report. Execution is pending CI; do not call the new gate passed until its job succeeds.
+Packaging now invokes tool/test-windows-startup.ps1 against the actual portable ZIP. The script verifies the checksum, extracts into a new temporary directory, starts the real executable with a private generated settings profile and a deliberately absent ADB path, requires a visible window and ten responsive seconds, checks that engine/plugin/runtime modules load from the extracted bundle, and requests a normal zero-code exit. It writes a bounded JSON evidence report. Candidate 9d8a9ec68fe555daf646eea3c66bd9b2a622d86f passed CI 34866115172, including the actual Windows startup gate. The Windows log confirms checksum, visible window, ten responsive seconds, local DLL loading and normal exit. This was an execution check, not a newly reviewed screenshot or clean-machine/hardware acceptance.
 
 No terminal/runtime is available in the current assistant environment. Changes are made through the connected GitHub tools and must be verified in CI. Preserve remote work; compare the latest main/PR head before any update. Never delete unrelated files or write into the user's private trading repository.
 
