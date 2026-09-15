@@ -44,6 +44,8 @@ jobs:
           cache: true
       - run: flutter pub get --enforce-lockfile
       - run: flutter test
+      - run: ./tool/test-preview-plan.ps1
+        shell: pwsh
       - name: Build portable package
         shell: pwsh
         run: ./tool/build-windows.ps1

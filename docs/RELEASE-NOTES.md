@@ -1,5 +1,7 @@
 Windows x64 desktop preview for connecting and diagnosing Android devices.
 
+**Unpublished development preview, not stable or physical-device acceptance.** Windows CI verifies the packaged app starts, loads its bundled runtime and closes normally. Clean consumer Windows and Android USB/wireless/APK/screenshot/log workflows remain untested on actual user hardware. Keep this release as a draft until the recorded release gates are met.
+
 - Device list with ready, offline and authorization states.
 - Separate wireless pairing and connection steps.
 - ADB and TCP diagnostics with structured report export.
