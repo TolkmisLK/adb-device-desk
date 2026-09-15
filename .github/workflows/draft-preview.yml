@@ -1,0 +1,58 @@
+name: Prepare unpublished Windows preview
+on:
+  push:
+    branches: ['release/draft-v*-preview.*']
+permissions:
+  contents: read
+concurrency:
+  group: draft-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  validate-build:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+          channel: stable
+          cache: true
+      - run: ./tool/test-preview-plan.ps1
+        shell: pwsh
+      - run: flutter pub get --enforce-lockfile
+      - run: dart format --output=none --set-exit-if-changed lib test tool
+      - run: flutter analyze --fatal-infos
+      - run: dart tool/core_smoke.dart
+      - run: flutter test
+      - run: ./tool/build-windows.ps1
+        shell: pwsh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unpublished-preview-bundle
+          path: dist/*
+          if-no-files-found: error
+  create-draft:
+    needs: validate-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: unpublished-preview-bundle
+          path: dist
+      - name: Create exact-commit draft only
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          DRAFT_REF: ${{ github.ref }}
+          DRAFT_COMMIT: ${{ github.sha }}
+        run: ./tool/create-preview-draft.ps1 -Ref $env:DRAFT_REF -Commit $env:DRAFT_COMMIT

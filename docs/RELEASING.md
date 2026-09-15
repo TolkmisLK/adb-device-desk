@@ -26,6 +26,10 @@ Record Windows version, Android versions, Platform-Tools version and outcomes in
 
 ## Publish
 
+An authorized maintainer can prepare an **unpublished prerelease draft** without publishing a stable tag: create a branch such as `release/draft-v0.1.0-preview.1` from the exact reviewed commit. The `Prepare unpublished Windows preview` workflow repeats formatting, analysis, core smoke, Flutter tests, Windows packaging and actual ZIP startup. A separate contents-write job rechecks SHA-256 and creates only a draft prerelease targeting the immutable candidate SHA, with ZIP, checksum and startup JSON. It refuses an existing release instead of replacing it, and verifies draft/prerelease/target state after creation. Build jobs have contents-read permissions and no persistent checkout credentials. Branch creation is a deliberate release preparation action, not an ordinary feature-branch side effect. Source changes to this workflow do not by themselves prove draft creation succeeded.
+
+`tool/test-preview-plan.ps1` checks valid naming, version equality and an exact commit without making GitHub writes. The preview tag suffix identifies the release candidate; the app and ZIP retain the matching base pubspec version. CI and draft assets remain evidence for later physical checks, not public stable publication.
+
 Tag the checked commit `v0.1.0`. The release workflow rebuilds, retests and creates a **draft** with ZIP/checksum attachments. After acceptance, publish that draft and update CHANGELOG/README with the real release state. If a candidate fails, fix it and validate again before publishing; do not relabel an untested build as stable.
 
 ## GitHub project setup
