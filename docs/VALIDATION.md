@@ -1,5 +1,13 @@
 # Validation record / 验证记录
 
+## Unpublished Windows preview draft — 2026-09-16 (Asia/Shanghai)
+
+[Draft preparation CI](https://github.com/TolkmisLK/adb-device-desk/actions/runs/35030564868) completed successfully from exact commit `47350457eb54e7fd2cdd7b6c13812f4ffc872691` after PR #3 and main CI passed. The dedicated release branch repeated the locked-dependency, format, analysis, core smoke, 26-test, Windows build and actual extracted-window startup gates. Its separate release job checked the ZIP checksum and matching startup JSON before creating the draft.
+
+GitHub now contains `v0.1.0-preview.1` with both `draft=true` and `prerelease=true`, targeting that exact commit. Three attached assets were confirmed through the authenticated repository API: `adb-device-desk-0.1.0-windows-x64.zip` (11,957,594 bytes), its SHA-256 file and `windows-startup.json`. The draft is not a public download or a stable release. No new local archive extraction or visual review is claimed for this build.
+
+Consumer clean-machine and physical Android acceptance remain pending. Do not rerun creation blindly or publish this draft as if those checks passed; inspect the existing draft and follow [RELEASING.md](RELEASING.md).
+
 ## Actual Windows startup acceptance — 2026-09-15 (Asia/Shanghai)
 
 [PR #2 CI](https://github.com/TolkmisLK/adb-device-desk/actions/runs/34866115172), candidate `9d8a9ec68fe555daf646eea3c66bd9b2a622d86f`: Linux checks and Windows tests/build/package/startup all passed. The Windows suite again reports 26 passed and the opt-in screenshot test skipped.
@@ -73,6 +81,6 @@ The final command uses POSIX syntax. In PowerShell set `$env:CAPTURE_UI='1'` fir
 2. Perform the physical-device checklist in [RELEASING.md](RELEASING.md), including USB authorization, wireless pairing/connection, installation, PNG and log export.
 3. Only after those gates, publish an evidence-backed release. Profile/portfolio already link to the explicitly labeled development preview. The release workflow creates a draft with ZIP and SHA256, not an automatic public release.
 
-This is a tested source preview, not an accepted Windows release. No release exists at this checkpoint.
+This is a tested development preview, not an accepted public Windows release. An unpublished draft exists as recorded above; hardware and consumer-machine gates still apply.
 
 The native application icon is generated from the project's USB artwork at 16–256 px. `python tool/build_icon.py` rebuilds it with the optional Pillow dependency; app builds use the checked-in ICO and do not require Python.
