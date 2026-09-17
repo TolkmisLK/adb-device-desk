@@ -859,11 +859,12 @@ class _DeskScreenState extends State<DeskScreen> {
                 discoveryRun = false;
               });
               final found = await service.discoverWireless();
-              if (mounted)
+              if (mounted) {
                 setState(() {
                   discovered = found;
                   discoveryRun = true;
                 });
+              }
             }),
             if (discoveryRun && discovered.isEmpty)
               Padding(
@@ -1176,12 +1177,13 @@ class _DeskScreenState extends State<DeskScreen> {
                       english: widget.english,
                     ).save();
                     service = candidate;
-                    if (mounted)
+                    if (mounted) {
                       setState(() {
                         report = null;
                         discovered = [];
                         discoveryRun = false;
                       });
+                    }
                     await refresh();
                     done('设置已保存，ADB 可用。', 'Settings saved. ADB is available.');
                   },
