@@ -40,6 +40,8 @@ class _DeskScreenState extends State<DeskScreen> {
   final pairingCode = TextEditingController();
   final scroll = ScrollController();
   List<AdbDevice> devices = [];
+  List<WirelessService> discovered = [];
+  bool discoveryRun = false;
   String? selected;
   String? adbVersion;
   String? error;
@@ -840,6 +842,68 @@ class _DeskScreenState extends State<DeskScreen> {
         ),
       ),
       panel(
+        t('发现无线服务', 'Discover wireless services'),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              t(
+                '读取 ADB 已发现的配对和连接端口。发现结果不证明设备身份；请与手机屏幕核对。选择只填入地址，不会自动配对或连接。',
+                'Read pairing and connection ports discovered by ADB. Discovery does not verify identity; compare with your phone. Selecting an entry only fills the address.',
+              ),
+            ),
+            const SizedBox(height: 12),
+            button(t('刷新发现列表', 'Refresh discovery'), Icons.radar, () async {
+              setState(() {
+                discovered = [];
+                discoveryRun = false;
+              });
+              final found = await service.discoverWireless();
+              if (mounted)
+                setState(() {
+                  discovered = found;
+                  discoveryRun = true;
+                });
+            }),
+            if (discoveryRun && discovered.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(
+                  t(
+                    '没有发现服务。检查手机无线调试、同网段与网络隔离；仍可手动填写下方地址。',
+                    'No services found. Check wireless debugging and network isolation, or enter the address manually below.',
+                  ),
+                ),
+              ),
+            for (final entry in discovered)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  entry.pairing
+                      ? t('配对端口', 'Pairing port')
+                      : t('连接端口', 'Connection port'),
+                ),
+                subtitle: Text('${entry.name}\n${entry.endpoint}'),
+                trailing: TextButton(
+                  onPressed: busy || widget.demo
+                      ? null
+                      : () => setState(() {
+                          if (entry.pairing) {
+                            pairingTarget.text = entry.endpoint.toString();
+                            pairingCode.clear();
+                          } else {
+                            target.text = entry.endpoint.toString();
+                            report = null;
+                          }
+                        }),
+                  child: Text(t('填入', 'Use address')),
+                ),
+              ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 20),
+      panel(
         t('01  配对设备', '01  Pair your device'),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1112,7 +1176,12 @@ class _DeskScreenState extends State<DeskScreen> {
                       english: widget.english,
                     ).save();
                     service = candidate;
-                    if (mounted) setState(() => report = null);
+                    if (mounted)
+                      setState(() {
+                        report = null;
+                        discovered = [];
+                        discoveryRun = false;
+                      });
                     await refresh();
                     done('设置已保存，ADB 可用。', 'Settings saved. ADB is available.');
                   },

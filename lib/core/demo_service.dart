@@ -17,6 +17,15 @@ class DemoService implements DeviceService {
   Future<void> connect(Endpoint endpoint) async =>
       throw const DeskException('demo_only');
   @override
+  Future<List<WirelessService>> discoverWireless() async => const [
+    WirelessService('demo-phone', Endpoint('192.0.2.24', 40123), pairing: true),
+    WirelessService(
+      'demo-phone',
+      Endpoint('192.0.2.24', 37121),
+      pairing: false,
+    ),
+  ];
+  @override
   Future<void> pair(Endpoint endpoint, String code) async =>
       throw const DeskException('demo_only');
   @override

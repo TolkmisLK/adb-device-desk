@@ -1,5 +1,9 @@
 # Validation record / 验证记录
 
+## Wireless discovery candidate — pending CI
+
+Explicit mDNS discovery and separate pairing/connect address selection are implemented. Parser, command and UI regressions are added; ten standalone smoke checks pass locally. Flutter tests are pending CI because the local cached tool snapshot crashes with SIGBUS before startup. See [WIRELESS-DISCOVERY.md](WIRELESS-DISCOVERY.md).
+
 ## Unpublished Windows preview draft — 2026-09-16 (Asia/Shanghai)
 
 [Draft preparation CI](https://github.com/TolkmisLK/adb-device-desk/actions/runs/35030564868) completed successfully from exact commit `47350457eb54e7fd2cdd7b6c13812f4ffc872691` after PR #3 and main CI passed. The dedicated release branch repeated the locked-dependency, format, analysis, core smoke, 26-test, Windows build and actual extracted-window startup gates. Its separate release job checked the ZIP checksum and matching startup JSON before creating the draft.

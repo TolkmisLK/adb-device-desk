@@ -27,6 +27,14 @@ jobs:
       - run: flutter analyze --fatal-infos
       - run: dart tool/core_smoke.dart
       - run: flutter test --coverage
+      - name: Capture actual demo screens
+        run: flutter test test/visual_review_test.dart --update-goldens
+        env:
+          CAPTURE_UI: '1'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: adb-demo-screens
+          path: docs/screenshots/*.png
       - uses: actions/upload-artifact@v4
         with:
           name: coverage
