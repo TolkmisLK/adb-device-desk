@@ -51,6 +51,9 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Wireless'));
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Refresh discovery'));
+      await tester.pumpAndSettle();
+      expect(find.text('Use address'), findsNWidgets(2));
       await expectLater(
         find.byType(DeskApp),
         matchesGoldenFile('../docs/screenshots/wireless.png'),

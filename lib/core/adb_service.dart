@@ -6,6 +6,7 @@ import 'models.dart';
 abstract interface class DeviceService {
   Future<String> version();
   Future<List<AdbDevice>> devices();
+  Future<List<WirelessService>> discoverWireless();
   Future<void> connect(Endpoint endpoint);
   Future<void> pair(Endpoint endpoint, String code);
   Future<void> disconnect(String serial);
@@ -67,6 +68,15 @@ class AdbService implements DeviceService {
   @override
   Future<List<AdbDevice>> devices() async =>
       AdbDevice.parse((await _run(['devices', '-l'])).text);
+
+  @override
+  Future<List<WirelessService>> discoverWireless() async {
+    final result = await _run(['mdns', 'services']);
+    if (!result.text.contains('List of discovered mdns services')) {
+      throw const DeskException('discovery_unavailable');
+    }
+    return WirelessService.parse(result.text);
+  }
 
   @override
   Future<void> connect(Endpoint endpoint) async {

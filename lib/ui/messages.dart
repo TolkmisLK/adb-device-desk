@@ -8,6 +8,10 @@ String message(String code, bool english) {
 
 const _messages = <String, List<String>>{
   'adb_available': ['ADB 已就绪', 'ADB is available'],
+  'discovery_unavailable': [
+    '当前 ADB 未返回无线发现列表。请更新官方 Platform-Tools，或手动填写手机显示的地址与端口。',
+    'ADB did not return a wireless discovery list. Update official Platform-Tools or enter the address and port shown on your phone.',
+  ],
   'adb_unavailable': [
     '无法启动 ADB。请在设置中选择官方 Platform-Tools 里的 adb.exe，并确认文件可运行。',
     'Cannot start ADB. Select adb.exe from the official Platform-Tools in Settings and check that it is executable.',

@@ -37,6 +37,59 @@ CommandOutput output(String text, {int exit = 0, String error = ''}) =>
     );
 
 void main() {
+  test(
+    'wireless discovery separates ports, deduplicates and rejects malformed services',
+    () {
+      final services = WirelessService.parse('''List of discovered mdns services
+phone _adb-tls-pairing._tcp 192.168.1.20:40123
+phone _adb-tls-connect._tcp. 192.168.1.20:37121
+alias _adb-tls-connect._tcp 192.168.1.20:37121
+ipv6 _adb-tls-connect._tcp [2001:db8::1]:45678
+legacy _adb._tcp 192.168.1.20:5555
+bad _adb-tls-connect._tcp host:0
+bad _adb-tls-pairing._tcp --help
+bad _adb-tls-connect._tcp 192.168.999.1:5555
+extra _adb-tls-connect._tcp host:5555 injected
+''');
+      expect(services.length, 3);
+      expect(services.map((s) => s.pairing), [true, false, false]);
+      expect(services.map((s) => s.endpoint.toString()), [
+        '192.168.1.20:40123',
+        '192.168.1.20:37121',
+        '[2001:db8::1]:45678',
+      ]);
+      expect(
+        WirelessService.parse(
+          List.generate(
+            600,
+            (i) => 'name _adb-tls-connect._tcp host:${i + 1}',
+          ).join('\n'),
+        ).length,
+        100,
+      );
+    },
+  );
+  test(
+    'wireless discovery uses only the read-only services command and requires its header',
+    () async {
+      final runner = StubRunner(
+        (_, _) => output(
+          'List of discovered mdns services\nphone _adb-tls-pairing._tcp host:40123\n',
+        ),
+      );
+      final found = await AdbService(runner: runner).discoverWireless();
+      expect(runner.lastArgs, ['mdns', 'services']);
+      expect(runner.lastInput, isNull);
+      expect(found.single.pairing, true);
+      final failed = AdbService(
+        runner: StubRunner((_, _) => output('Unknown command mdns')),
+      );
+      await expectLater(
+        failed.discoverWireless(),
+        throwsA(code('discovery_unavailable')),
+      );
+    },
+  );
   group('Address validation', () {
     test('accepts IPv4, DNS and bracketed IPv6 with explicit ports', () {
       for (final value in [

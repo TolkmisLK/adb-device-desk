@@ -48,6 +48,42 @@ class Endpoint {
   String toString() => host.contains(':') ? '[$host]:$port' : '$host:$port';
 }
 
+class WirelessService {
+  const WirelessService(this.name, this.endpoint, {required this.pairing});
+  final String name;
+  final Endpoint endpoint;
+  final bool pairing;
+
+  static List<WirelessService> parse(String output) {
+    final result = <WirelessService>[];
+    final seen = <String>{};
+    for (final line in output.split('\n').take(500)) {
+      final parts = line.trim().split(RegExp(r'\s+'));
+      if (parts.length != 3 || parts.first.length > 253) continue;
+      final type = parts[1].replaceFirst(RegExp(r'\.$'), '');
+      if (!['_adb-tls-pairing._tcp', '_adb-tls-connect._tcp'].contains(type)) {
+        continue;
+      }
+      try {
+        final endpoint = Endpoint.parse(parts[2]);
+        final key = '$type|$endpoint';
+        if (!seen.add(key)) continue;
+        result.add(
+          WirelessService(
+            parts.first,
+            endpoint,
+            pairing: type == '_adb-tls-pairing._tcp',
+          ),
+        );
+        if (result.length == 100) break;
+      } on DeskException {
+        // Discovery is untrusted input. Invalid entries never become commands.
+      }
+    }
+    return result;
+  }
+}
+
 class AdbDevice {
   const AdbDevice(this.serial, this.state, {this.model = ''});
   final String serial;
