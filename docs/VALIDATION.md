@@ -1,8 +1,10 @@
 # Validation record / 验证记录
 
-## Wireless discovery candidate — pending CI
+## Wireless discovery — 2026-09-18 (Asia/Shanghai)
 
-Explicit mDNS discovery and separate pairing/connect address selection are implemented. Parser, command and UI regressions are added; ten standalone smoke checks pass locally. Flutter tests are pending CI because the local cached tool snapshot crashes with SIGBUS before startup. See [WIRELESS-DISCOVERY.md](WIRELESS-DISCOVERY.md).
+PR #4 candidate `21099f40c5faceb2301ed9943ed9b975da9c68d3` passed both jobs in [CI 35283424371](https://github.com/TolkmisLK/adb-device-desk/actions/runs/35283424371): format, analysis, ten standalone smoke checks, Flutter tests, actual demo capture and Windows build/extracted-window startup. Discovery is explicit; untrusted pairing/connect advertisements stay separate and selecting an address does not send a pairing or connection command. See [WIRELESS-DISCOVERY.md](WIRELESS-DISCOVERY.md).
+
+All four real Flutter demo-rendered captures from artifact `10523671854` were downloaded and reviewed; the wireless panel shows separate pairing and connection ports without overflow. Windows artifact `10523877157` passed local SHA-256 and all 18 ZIP entry checks. Its startup JSON records a visible, responsive window for ten seconds, bundle DLL verification and normal exit 0, with physical-device and clean-machine flags false. These are CI/demo results, not live mDNS or Android hardware acceptance. The local cached Flutter tool still crashes with SIGBUS before startup; no local Flutter suite success is claimed for this candidate.
 
 ## Unpublished Windows preview draft — 2026-09-16 (Asia/Shanghai)
 
