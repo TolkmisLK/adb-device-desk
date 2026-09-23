@@ -4,7 +4,9 @@ Connect Android devices, check why ADB is failing, and save screenshots or logs 
 
 连接安卓设备，排查 ADB 连接问题，在电脑上安装 APK、截图和导出日志。
 
-**Status / 状态:** v0.1.0 development preview. Windows x64 is the first release target. Physical-device acceptance and a Windows build must pass before publishing a release.
+**Status / 状态:** v0.1.0 development preview. Windows CI has built the complete x64 package and started its extracted app. Clean Windows machine and physical Android device acceptance are still pending; there is no public release or download package yet.
+
+[中文准备与运行](#使用前准备) · [English setup](#english) · [Validation record / 验证记录](docs/VALIDATION.md)
 
 ![ADB Device Desk — demo data](docs/screenshots/devices.png)
 
@@ -28,7 +30,7 @@ Actual Flutter rendering with demo data; not a Windows or physical-device accept
 3. USB 连接：开启设备的开发者选项与 USB 调试，使用数据线连接，在设备上接受授权。
 4. 无线连接：打开「无线连接」，按页面上的配对、连接两个步骤操作。
 
-ADB 不随本项目分发。应用不要求 Android Studio；从源码编译桌面应用才需要 Flutter 与 Visual Studio。Windows 安装包的获取以 GitHub Releases 实际附件为准。
+ADB 不随本项目分发。应用不要求 Android Studio；从源码编译桌面应用才需要 Flutter 与 Visual Studio。目前只有未公开的 Release 草稿，不能从公开页面下载安装包。
 
 ### 从源码运行（Windows）
 
@@ -73,7 +75,7 @@ flutter test
 
 ADB Device Desk is a local desktop interface for Android Debug Bridge. It helps developers and testers inspect connected devices, distinguish pairing from connection, and collect evidence when something fails.
 
-Select an official Platform-Tools `adb.exe` in Settings, verify it, then connect via USB or use the wireless guide. Every device operation targets the selected serial explicitly. No background LAN scanning, telemetry, or automatic debugging-mode changes are included.
+Download [Google's Platform-Tools](https://developer.android.com/tools/releases/platform-tools), then select its `adb.exe` in Settings and verify it. Connect via USB or follow the separate wireless pairing and connection steps. Every device operation targets the selected serial explicitly. No background LAN scanning, telemetry, or automatic debugging-mode changes are included.
 
 Build with Flutter **3.35.7** and the Visual Studio 2022 **Desktop development with C++** workload:
 

@@ -20,7 +20,48 @@ class DiscoveryFixture extends DemoService {
   }
 }
 
+class MissingAdbFixture extends DemoService {
+  @override
+  Future<String> version() async =>
+      throw const DeskException('adb_unavailable');
+}
+
 void main() {
+  testWidgets('missing ADB leaves a usable setup path', (tester) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DeskScreen(
+          settings: const Settings(),
+          demo: false,
+          english: true,
+          onLanguageChanged: (_) {},
+          service: MissingAdbFixture(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Connect your first device'), findsOneWidget);
+    expect(
+      find.text(
+        'Cannot start ADB. Select adb.exe from the official Platform-Tools in Settings and check that it is executable.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Set up ADB'), findsOneWidget);
+    await tester.ensureVisible(find.text('Set up ADB'));
+    await tester.tap(find.text('Set up ADB'));
+    await tester.pumpAndSettle();
+    expect(find.text('ADB executable'), findsOneWidget);
+    expect(
+      find.text('https://developer.android.com/tools/releases/platform-tools'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
   testWidgets(
     'discovery fills only the chosen port without connecting or pairing',
     (tester) async {

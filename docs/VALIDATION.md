@@ -1,5 +1,11 @@
 # Validation record / 验证记录
 
+## First-use error handling — 2026-09-23 (candidate)
+
+On branch `codex/portfolio-first-use-20260923` from `a891bef`, nonzero ADB exits now retain actionable codes for setup, wireless discovery, pairing, connection and APK installation. Only explicit errors for a selected device map to `device_missing`; an unrelated `not found` remains an operation failure. Core tests cover these cases and preserve unauthorized, offline, timeout and output-limit priority. A widget test covers the setup route when ADB is unavailable.
+
+Local checks used Dart 3.12.2 from the installed Flutter 3.44.2 SDK, **not** the required Flutter 3.35.7: formatting of the three changed Dart files and 10 dependency-free core smoke checks passed. A temporary Dart harness also passed 10 nonzero/priority scenarios and three device-missing boundary scenarios without starting ADB or using a device. Package resolution for Flutter tests was unavailable locally; exact-version analysis, core/widget tests and Windows packaging still require CI. Clean-machine and physical-device acceptance remain unchecked.
+
 ## Wireless discovery — 2026-09-18 (Asia/Shanghai)
 
 PR #4 candidate `21099f40c5faceb2301ed9943ed9b975da9c68d3` passed both jobs in [CI 35283424371](https://github.com/TolkmisLK/adb-device-desk/actions/runs/35283424371): format, analysis, ten standalone smoke checks, Flutter tests, actual demo capture and Windows build/extracted-window startup. Discovery is explicit; untrusted pairing/connect advertisements stay separate and selecting an address does not send a pairing or connection command. See [WIRELESS-DISCOVERY.md](WIRELESS-DISCOVERY.md).
