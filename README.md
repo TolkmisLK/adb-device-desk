@@ -4,7 +4,9 @@ Connect Android devices, check why ADB is failing, and save screenshots or logs 
 
 连接安卓设备，排查 ADB 连接问题，在电脑上安装 APK、截图和导出日志。
 
-**Status / 状态:** v0.1.0 development preview. Windows CI has built the complete x64 package and started its extracted app. Clean Windows machine and physical Android device acceptance are still pending; there is no public release or download package yet.
+**Status:** v0.1.0 development preview. Windows CI built and started the extracted x64 package. USB detection, device information, PNG capture, and log/diagnostic exports passed on a Windows 11 development machine. APK installation timed out; clean-machine, wireless, multiple-device, and remaining device acceptance are open. There is no public release or download package yet.
+
+**状态：** v0.1.0 开发预览。Windows CI 已构建并启动解压后的完整程序；Windows 11 开发机上的 USB 识别、信息读取、PNG 截图和日志/诊断导出已通过。APK 安装超时；干净电脑、无线、多设备和其余真机验收尚未完成，目前没有公开下载包。
 
 [中文准备与运行](#使用前准备) · [English setup](#english) · [Validation record / 验证记录](docs/VALIDATION.md)
 
