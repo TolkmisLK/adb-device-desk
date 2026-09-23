@@ -351,6 +351,34 @@ adb: something failed
         windowsMissingDevice.install('USB1', apk.path),
         throwsA(code('device_missing')),
       );
+
+      final disconnectedDuringInstall = AdbService(
+        runner: StubRunner(
+          (_, _) => output(
+            '',
+            exit: 1,
+            error: "adb: connect error for write: device 'USB1' not found",
+          ),
+        ),
+      );
+      await expectLater(
+        disconnectedDuringInstall.install('USB1', apk.path),
+        throwsA(code('device_missing')),
+      );
+
+      final missingLocalFile = AdbService(
+        runner: StubRunner(
+          (_, _) => output(
+            '',
+            exit: 1,
+            error: 'adb: connect error for write: APK path not found',
+          ),
+        ),
+      );
+      await expectLater(
+        missingLocalFile.install('USB1', apk.path),
+        throwsA(code('install_failed')),
+      );
     },
   );
   test(

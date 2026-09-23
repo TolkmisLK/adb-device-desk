@@ -44,7 +44,7 @@ class AdbService implements DeviceService {
       // A generic "not found" may refer to an APK, path, or ADB installation.
       if (args.first == '-s' &&
           RegExp(
-            r'''^(?:adb(?:\.exe)?:\s*)?(?:error:\s*)?(?:device\s+(?:(?:'[^'\r\n]+'|"[^"\r\n]+")\s+)?not found|no devices/emulators found)\s*$''',
+            r'''^(?:adb(?:\.exe)?:\s*)?(?:(?:error|connect error for write):\s*)?(?:device\s+(?:(?:'[^'\r\n]+'|"[^"\r\n]+")\s+)?not found|no devices/emulators found)\s*$''',
             multiLine: true,
           ).hasMatch(output)) {
         throw const DeskException('device_missing');
