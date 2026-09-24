@@ -264,8 +264,9 @@ class _DeskScreenState extends State<DeskScreen> {
     if (!await confirm(
       t('批量安装 APK', 'Install APK on multiple devices'),
       '${apk.name}\n\n${t('将依次安装到已勾选的 ${serials.length} 台设备。若应用已存在，将尝试保留数据并更新应用。单台失败不会中断后续设备。', 'Install sequentially on ${serials.length} selected devices. Existing apps will be updated while retaining data where supported. A failed device will not stop the others.')}\n\n${serials.join('\n')}',
-    ))
+    )) {
       return;
+    }
     if (!mounted) return;
     setState(() {
       batchTargets = serials;
@@ -277,11 +278,12 @@ class _DeskScreenState extends State<DeskScreen> {
       serials,
       apk.path,
       onProgress: (current, completed) {
-        if (mounted)
+        if (mounted) {
           setState(() {
             batchCurrent = current;
             batchResults = completed;
           });
+        }
       },
     );
     final succeeded = results.where((result) => result.succeeded).length;
