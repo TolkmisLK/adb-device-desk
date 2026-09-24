@@ -90,6 +90,27 @@ extra _adb-tls-connect._tcp host:5555 injected
       );
     },
   );
+  test(
+    'nonzero setup and discovery failures keep actionable guidance',
+    () async {
+      final version = AdbService(
+        runner: StubRunner(
+          (_, _) => output('', exit: 1, error: 'library not found'),
+        ),
+      );
+      await expectLater(version.version(), throwsA(code('adb_unavailable')));
+
+      final discovery = AdbService(
+        runner: StubRunner(
+          (_, _) => output('', exit: 1, error: 'unknown command mdns'),
+        ),
+      );
+      await expectLater(
+        discovery.discoverWireless(),
+        throwsA(code('discovery_unavailable')),
+      );
+    },
+  );
   group('Address validation', () {
     test('accepts IPv4, DNS and bracketed IPv6 with explicit ports', () {
       for (final value in [
@@ -193,6 +214,39 @@ adb: something failed
       throwsA(code('pair_failed')),
     );
   });
+  test(
+    'nonzero pair and connect failures keep their operation guidance',
+    () async {
+      final connect = AdbService(
+        runner: StubRunner(
+          (_, _) =>
+              output('', exit: 1, error: 'failed to connect to host:5555'),
+        ),
+      );
+      await expectLater(
+        connect.connect(const Endpoint('host', 5555)),
+        throwsA(code('connect_failed')),
+      );
+      final noSelectedDevice = AdbService(
+        runner: StubRunner(
+          (_, _) => output('', exit: 1, error: 'device not found'),
+        ),
+      );
+      await expectLater(
+        noSelectedDevice.connect(const Endpoint('host', 5555)),
+        throwsA(code('connect_failed')),
+      );
+      final pair = AdbService(
+        runner: StubRunner(
+          (_, _) => output('', exit: 1, error: 'Failed: wrong password'),
+        ),
+      );
+      await expectLater(
+        pair.pair(const Endpoint('host', 40123), '123456'),
+        throwsA(code('pair_failed')),
+      );
+    },
+  );
   test('device operations always specify exactly one target', () async {
     final runner = StubRunner((_, _) => output('logs'));
     await AdbService(runner: runner).logs('USB1');
@@ -246,6 +300,111 @@ adb: something failed
         failing.install('USB1', apk.path),
         throwsA(code('install_failed')),
       );
+    },
+  );
+  test(
+    'nonzero install distinguishes package failure from a lost device',
+    () async {
+      final directory = await Directory.systemTemp.createTemp('adb-desk-test-');
+      addTearDown(() => directory.delete(recursive: true));
+      final apk = File('${directory.path}/example.apk');
+      await apk.writeAsBytes([0]);
+
+      final packageFailure = AdbService(
+        runner: StubRunner(
+          (_, _) => output(
+            '',
+            exit: 1,
+            error: 'INSTALL_FAILED: package dependency not found',
+          ),
+        ),
+      );
+      await expectLater(
+        packageFailure.install('USB1', apk.path),
+        throwsA(code('install_failed')),
+      );
+
+      final missingDevice = AdbService(
+        runner: StubRunner(
+          (_, _) => output(
+            '',
+            exit: 1,
+            error: "adb: error: device 'PRIVATE_SERIAL' not found",
+          ),
+        ),
+      );
+      await expectLater(
+        missingDevice.install('USB1', apk.path),
+        throwsA(code('device_missing')),
+      );
+
+      final windowsMissingDevice = AdbService(
+        runner: StubRunner(
+          (_, _) => output(
+            '',
+            exit: 1,
+            error: "adb.exe: error: device 'PRIVATE_SERIAL' not found",
+          ),
+        ),
+      );
+      await expectLater(
+        windowsMissingDevice.install('USB1', apk.path),
+        throwsA(code('device_missing')),
+      );
+
+      final disconnectedDuringInstall = AdbService(
+        runner: StubRunner(
+          (_, _) => output(
+            '',
+            exit: 1,
+            error: "adb: connect error for write: device 'USB1' not found",
+          ),
+        ),
+      );
+      await expectLater(
+        disconnectedDuringInstall.install('USB1', apk.path),
+        throwsA(code('device_missing')),
+      );
+
+      final missingLocalFile = AdbService(
+        runner: StubRunner(
+          (_, _) => output(
+            '',
+            exit: 1,
+            error: 'adb: connect error for write: APK path not found',
+          ),
+        ),
+      );
+      await expectLater(
+        missingLocalFile.install('USB1', apk.path),
+        throwsA(code('install_failed')),
+      );
+    },
+  );
+  test(
+    'device errors and runner limits take priority over operation defaults',
+    () async {
+      for (final (error, expected) in [
+        ('device PRIVATE_SERIAL unauthorized', 'unauthorized'),
+        ('device PRIVATE_SERIAL offline', 'offline'),
+      ]) {
+        final service = AdbService(
+          runner: StubRunner((_, _) => output('', exit: 1, error: error)),
+        );
+        await expectLater(
+          service.connect(const Endpoint('host', 5555)),
+          throwsA(code(expected)),
+        );
+      }
+      for (final expected in ['command_timeout', 'output_limit']) {
+        final service = AdbService(
+          runner: StubRunner((_, _) => throw DeskException(expected)),
+        );
+        await expectLater(
+          service.pair(const Endpoint('host', 40123), '123456'),
+          throwsA(code(expected)),
+        );
+      }
     },
   );
   test('screenshots preserve binary bytes and reject text errors', () async {

@@ -26,6 +26,7 @@ class AdbService implements DeviceService {
     List<String> args, {
     Duration timeout = const Duration(seconds: 15),
     String? input,
+    String failureCode = 'command_failed',
   }) async {
     final result = await runner.run(
       executable,
@@ -39,10 +40,16 @@ class AdbService implements DeviceService {
         throw const DeskException('unauthorized');
       }
       if (output.contains('offline')) throw const DeskException('offline');
-      if (output.contains('no devices') || output.contains('not found')) {
+      // Only an explicitly targeted operation can lose its selected device.
+      // A generic "not found" may refer to an APK, path, or ADB installation.
+      if (args.first == '-s' &&
+          RegExp(
+            r'''^(?:adb(?:\.exe)?:\s*)?(?:(?:error|connect error for write):\s*)?(?:device\s+(?:(?:'[^'\r\n]+'|"[^"\r\n]+")\s+)?not found|no devices/emulators found)\s*$''',
+            multiLine: true,
+          ).hasMatch(output)) {
         throw const DeskException('device_missing');
       }
-      throw const DeskException('command_failed');
+      throw DeskException(failureCode);
     }
     return result;
   }
@@ -58,7 +65,9 @@ class AdbService implements DeviceService {
 
   @override
   Future<String> version() async {
-    final output = (await _run(['version'])).text;
+    final output = (await _run([
+      'version',
+    ], failureCode: 'adb_unavailable')).text;
     if (!output.contains('Android Debug Bridge version')) {
       throw const DeskException('adb_unavailable');
     }
@@ -71,7 +80,10 @@ class AdbService implements DeviceService {
 
   @override
   Future<List<WirelessService>> discoverWireless() async {
-    final result = await _run(['mdns', 'services']);
+    final result = await _run([
+      'mdns',
+      'services',
+    ], failureCode: 'discovery_unavailable');
     if (!result.text.contains('List of discovered mdns services')) {
       throw const DeskException('discovery_unavailable');
     }
@@ -80,10 +92,11 @@ class AdbService implements DeviceService {
 
   @override
   Future<void> connect(Endpoint endpoint) async {
-    final result = await _run([
-      'connect',
-      endpoint.toString(),
-    ], timeout: const Duration(seconds: 20));
+    final result = await _run(
+      ['connect', endpoint.toString()],
+      timeout: const Duration(seconds: 20),
+      failureCode: 'connect_failed',
+    );
     if (!RegExp(
       r'^(already )?connected to ',
       multiLine: true,
@@ -102,6 +115,7 @@ class AdbService implements DeviceService {
       ['pair', endpoint.toString()],
       timeout: const Duration(seconds: 30),
       input: '$code\n',
+      failureCode: 'pair_failed',
     );
     if (!result.text.contains('Successfully paired to ')) {
       throw const DeskException('pair_failed');
@@ -123,6 +137,7 @@ class AdbService implements DeviceService {
     final result = await _run(
       _target(serial, ['install', '-r', file.path]),
       timeout: const Duration(minutes: 3),
+      failureCode: 'install_failed',
     );
     if (!RegExp(r'^Success\s*$', multiLine: true).hasMatch(result.text)) {
       throw const DeskException('install_failed');

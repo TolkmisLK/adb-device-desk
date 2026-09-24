@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import '../core/adb_service.dart';
+import '../core/batch_install.dart';
 import '../core/demo_service.dart';
 import '../core/diagnostics.dart';
 import '../core/models.dart';
@@ -49,9 +50,25 @@ class _DeskScreenState extends State<DeskScreen> {
   Map<String, String>? deviceInfo;
   DiagnosticReport? report;
   bool busy = false;
+  List<String> batchTargets = [];
+  List<InstallResult> batchResults = [];
+  String? batchCurrent;
   int page = 0;
 
   String t(String zh, String en) => widget.english ? en : zh;
+  String batchStatus(String serial) {
+    for (final result in batchResults) {
+      if (result.serial == serial) {
+        return result.succeeded
+            ? t('成功', 'Succeeded')
+            : message(result.errorCode!, widget.english);
+      }
+    }
+    return batchCurrent == serial
+        ? t('正在安装', 'Installing')
+        : t('等待中', 'Pending');
+  }
+
   AdbDevice? get device {
     for (final value in devices) {
       if (value.serial == selected) return value;
@@ -141,6 +158,7 @@ class _DeskScreenState extends State<DeskScreen> {
       await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
+          scrollable: true,
           title: Text(title),
           content: Text(description),
           actions: [
@@ -173,6 +191,106 @@ class _DeskScreenState extends State<DeskScreen> {
     }
     await service.install(serial, apk.path);
     done('应用安装成功。', 'App installed successfully.');
+  }
+
+  Future<void> installOnMultipleDevices() async {
+    final ready = devices.where((value) => value.ready).toList();
+    final chosen = <String>{};
+    final serials = await showDialog<List<String>>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, update) => AlertDialog(
+          title: Text(t('选择安装目标', 'Select install targets')),
+          content: SizedBox(
+            width: 420,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 400),
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  Text(
+                    t(
+                      '仅列出已连接设备。请明确勾选每台需要安装的设备。',
+                      'Only ready devices are listed. Select each device to install on.',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  for (final value in ready)
+                    CheckboxListTile(
+                      value: chosen.contains(value.serial),
+                      title: Text(value.title),
+                      subtitle: Text(value.serial),
+                      onChanged: (checked) => update(() {
+                        if (checked == true) {
+                          chosen.add(value.serial);
+                        } else {
+                          chosen.remove(value.serial);
+                        }
+                      }),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(t('取消', 'Cancel')),
+            ),
+            FilledButton(
+              onPressed: chosen.isEmpty
+                  ? null
+                  : () => Navigator.pop(
+                      context,
+                      ready
+                          .where((value) => chosen.contains(value.serial))
+                          .map((value) => value.serial)
+                          .toSet()
+                          .toList(),
+                    ),
+              child: Text(t('选择 APK', 'Choose APK')),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (serials == null || !mounted) return;
+    final apk = await openFile(
+      acceptedTypeGroups: const [
+        XTypeGroup(label: 'APK', extensions: ['apk']),
+      ],
+    );
+    if (apk == null || !mounted) return;
+    if (!await confirm(
+      t('批量安装 APK', 'Install APK on multiple devices'),
+      '${apk.name}\n\n${t('将依次安装到已勾选的 ${serials.length} 台设备。若应用已存在，将尝试保留数据并更新应用。单台失败不会中断后续设备。', 'Install sequentially on ${serials.length} selected devices. Existing apps will be updated while retaining data where supported. A failed device will not stop the others.')}\n\n${serials.join('\n')}',
+    )) {
+      return;
+    }
+    if (!mounted) return;
+    setState(() {
+      batchTargets = serials;
+      batchResults = [];
+      batchCurrent = null;
+    });
+    final results = await installBatch(
+      service,
+      serials,
+      apk.path,
+      onProgress: (current, completed) {
+        if (mounted) {
+          setState(() {
+            batchCurrent = current;
+            batchResults = completed;
+          });
+        }
+      },
+    );
+    final succeeded = results.where((result) => result.succeeded).length;
+    done(
+      '批量安装完成：$succeeded/${results.length} 台成功。',
+      'Batch installation complete: $succeeded/${results.length} succeeded.',
+    );
   }
 
   Future<void> screenshot() async {
@@ -697,6 +815,13 @@ class _DeskScreenState extends State<DeskScreen> {
                     enabled: operable,
                   ),
                   button(
+                    t('批量安装 APK', 'Batch install APK'),
+                    Icons.install_mobile,
+                    installOnMultipleDevices,
+                    enabled:
+                        !widget.demo && devices.any((value) => value.ready),
+                  ),
+                  button(
                     t('保存截图', 'Save screenshot'),
                     Icons.screenshot_monitor,
                     screenshot,
@@ -723,6 +848,19 @@ class _DeskScreenState extends State<DeskScreen> {
                   ),
                 ],
               ),
+              if (batchTargets.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                const Divider(),
+                Text(
+                  t('批量安装结果', 'Batch installation results'),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                for (final serial in batchTargets)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text('$serial: ${batchStatus(serial)}'),
+                  ),
+              ],
               if (deviceInfo != null) ...[
                 const SizedBox(height: 20),
                 const Divider(),
@@ -742,8 +880,8 @@ class _DeskScreenState extends State<DeskScreen> {
                   'Demo mode does not connect to or modify real devices.',
                 )
               : t(
-                  '所有操作仅针对当前选中的设备。',
-                  'All operations target only the selected device.',
+                  '单台操作仅针对当前设备；批量安装仅针对明确勾选的设备。',
+                  'Single-device actions target the current device; batch install targets only checked devices.',
                 ),
         ),
       ],

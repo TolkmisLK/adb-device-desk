@@ -20,7 +20,109 @@ class DiscoveryFixture extends DemoService {
   }
 }
 
+class MissingAdbFixture extends DemoService {
+  @override
+  Future<String> version() async =>
+      throw const DeskException('adb_unavailable');
+}
+
+class BatchSelectionFixture extends DemoService {
+  @override
+  Future<List<AdbDevice>> devices() async => const [
+    AdbDevice('one', 'device', model: 'First'),
+    AdbDevice('two', 'device', model: 'Second'),
+    AdbDevice('three', 'offline', model: 'Offline'),
+  ];
+}
+
 void main() {
+  testWidgets('batch install requires explicit ready-device selection', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DeskScreen(
+          settings: const Settings(),
+          demo: false,
+          english: true,
+          onLanguageChanged: (_) {},
+          service: BatchSelectionFixture(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Batch install APK'));
+    await tester.tap(find.text('Batch install APK'));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text('Select install targets'), findsOneWidget);
+    expect(find.text('First'), findsWidgets);
+    expect(find.text('Second'), findsWidgets);
+    expect(find.byType(CheckboxListTile), findsNWidgets(2));
+    final choose = tester.widget<FilledButton>(
+      find.ancestor(
+        of: find.text('Choose APK'),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    expect(choose.onPressed, isNull);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(CheckboxListTile),
+        matching: find.text('Second'),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 200));
+    final selected = tester.widget<FilledButton>(
+      find.ancestor(
+        of: find.text('Choose APK'),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    expect(selected.onPressed, isNotNull);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.text('Select install targets'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('missing ADB leaves a usable setup path', (tester) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DeskScreen(
+          settings: const Settings(),
+          demo: false,
+          english: true,
+          onLanguageChanged: (_) {},
+          service: MissingAdbFixture(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Connect your first device'), findsOneWidget);
+    expect(
+      find.text(
+        'Cannot start ADB. Select adb.exe from the official Platform-Tools in Settings and check that it is executable.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Set up ADB'), findsOneWidget);
+    await tester.ensureVisible(find.text('Set up ADB'));
+    await tester.tap(find.text('Set up ADB'));
+    await tester.pumpAndSettle();
+    expect(find.text('ADB executable'), findsOneWidget);
+    expect(
+      find.text('https://developer.android.com/tools/releases/platform-tools'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
   testWidgets(
     'discovery fills only the chosen port without connecting or pairing',
     (tester) async {
