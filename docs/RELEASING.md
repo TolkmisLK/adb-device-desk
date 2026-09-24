@@ -17,6 +17,7 @@
 - [ ] Android 11+ pairing and connecting work using separate ports.
 - [ ] Invalid/expired code and wrong port yield useful errors, no false success.
 - [ ] Two connected devices: installation/screenshot/logs target only the selected one.
+- [ ] Batch installation: explicitly check two ready devices, verify one APK installs on each and each result is shown; a failing or timed-out device does not stop the next target.
 - [ ] Install a test APK; PNG opens normally; logcat exports after confirmation.
 - [ ] Disconnect the selected TCP device without disconnecting another device.
 - [ ] Diagnostic JSON contains no real identifiers, IPs, paths, codes or raw output.

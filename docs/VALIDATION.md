@@ -1,5 +1,11 @@
 # Validation record / 验证记录
 
+## Multi-device APK installation — 2026-09-24 (Asia/Shanghai)
+
+The existing single-device application was reported usable after the 2026-09-23 candidate. This report does not establish which physical-device cases passed. The new batch path selects ready devices explicitly, runs the existing targeted APK install sequentially with its three-minute per-device timeout, and records each result even when a preceding target fails. It does not change debugging modes or stop the shared ADB server.
+
+New coordinator and widget tests are included in the CI suite. Batch installation has no physical-device acceptance in this record; the two-device and failure-continuation checks in [RELEASING.md](RELEASING.md) remain open. CI commit and run results will be recorded after completion.
+
 ## First-use candidate — 2026-09-23 (Asia/Shanghai)
 
 Candidate `9481e49437485986d9407ccc7089b660088218f9` on `codex/portfolio-first-use-20260923` builds on main `4ac255ca63e95dc3a2a2fb385d80cb4e4265ace5`. The local `bf9462b` commit has the same tree (`f900f11eb58b696e135ff6a763366f02bf26cb3d`). Nonzero ADB exits now retain setup, discovery, pairing, connection and installation guidance while explicit selected-device errors take priority. Independent review found a missed `connect error for write: device ... not found` form; the follow-up fix was reviewed without a further blocking finding.

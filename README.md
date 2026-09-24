@@ -4,9 +4,9 @@ Connect Android devices, check why ADB is failing, and save screenshots or logs 
 
 连接安卓设备，排查 ADB 连接问题，在电脑上安装 APK、截图和导出日志。
 
-**Status:** v0.1.0 development preview. Windows CI built and started the extracted x64 package. USB detection, device information, PNG capture, and log/diagnostic exports passed on a Windows 11 development machine. APK installation timed out; clean-machine, wireless, multiple-device, and remaining device acceptance are open. There is no public release or download package yet.
+**Status:** v0.1.0 development preview. A Windows x64 package has passed CI build and startup checks. There is no public release or download package yet. See the [validation record](docs/VALIDATION.md) for the scope of device and package checks.
 
-**状态：** v0.1.0 开发预览。Windows CI 已构建并启动解压后的完整程序；Windows 11 开发机上的 USB 识别、信息读取、PNG 截图和日志/诊断导出已通过。APK 安装超时；干净电脑、无线、多设备和其余真机验收尚未完成，目前没有公开下载包。
+**状态：** v0.1.0 开发预览。Windows x64 程序包已通过 CI 构建与启动检查，目前没有公开下载包。设备和程序包的验证范围见[验证记录](docs/VALIDATION.md)。
 
 [中文准备与运行](#使用前准备) · [English setup](#english) · [Validation record / 验证记录](docs/VALIDATION.md)
 
@@ -22,6 +22,7 @@ Actual Flutter rendering with demo data; not a Windows or physical-device accept
 - 按步骤完成 Android 11+ 无线配对与连接，分别填写配对端口和连接端口。
 - 检查本机 ADB、设备状态和一个指定 TCP 端口，给出下一步建议。
 - 对所选设备安装 APK、保存 PNG 截图、查看基本信息、导出最近 500 行 logcat。
+- 选择同一个 APK 并明确勾选多台已连接设备，依次安装并查看每台设备的结果；单台失败后继续处理后续设备。
 - 导出不含设备标识、网络地址或原始输出的 JSON 诊断报告。
 - 中文/英文界面，跟随系统深浅主题，本机运行，无遥测。
 
@@ -69,8 +70,8 @@ flutter test
 - 网络诊断只检查用户填写的一个地址，不自动扫描局域网；IPv6 使用 `[地址]:端口`。
 - 无线连接需设备事先开启调试。应用不自动执行 `adb tcpip`、`adb kill-server` 或重置授权。
 - ADB 自行发现的 mDNS 设备可显示和操作；首版的断开按钮仅适用于显式 `host:port` 连接。
-- 安装仅支持单个 APK，不支持 split APK / APKS / XAPK。
-- 不包含投屏、远程公网控制、批量操作或自动重连。
+- 每次安装仅支持一个 APK 文件，不支持 split APK / APKS / XAPK。批量安装对每台设备分别运行一次安装命令，单台命令最多等待 3 分钟。
+- 不包含投屏、远程公网控制、其他批量操作或自动重连。
 - 诊断报告仅包含结构化检查结果；**原始 logcat 不自动脱敏**，导出前会提示，分享前需要自行检查。
 
 ## English
@@ -89,7 +90,7 @@ flutter run -d windows
 ./tool/build-windows.ps1
 ```
 
-Use `--dart-define=DEMO=true` for a clearly marked, device-free demo. Windows x64 is the initial target. An open TCP port is not proof of ADB service identity or authorization. Single APK installs are supported; split packages, screen mirroring, batch actions and automatic reconnection are outside v0.1.
+Use `--dart-define=DEMO=true` for a clearly marked, device-free demo. Windows x64 is the initial target. An open TCP port is not proof of ADB service identity or authorization. To install on several ready devices, choose **Batch install APK**, check each target, choose one APK and confirm; results appear per device. Installs run sequentially with a three-minute timeout for each device. Split packages, screen mirroring, other batch actions and automatic reconnection are outside v0.1.
 
 Diagnostic JSON uses a field whitelist and omits addresses, serials, file paths, pairing codes and raw logs. Exported logcat is intentionally raw and requires user review before sharing. ADB is installed separately from Google's official distribution.
 
