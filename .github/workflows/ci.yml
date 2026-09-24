@@ -26,6 +26,7 @@ jobs:
       - run: dart format --output=none --set-exit-if-changed lib test tool
       - run: flutter analyze --fatal-infos
       - run: dart tool/core_smoke.dart
+      - run: pwsh -NoProfile -File tool/test-publish-preview-plan.ps1
       - run: flutter test --coverage
       - name: Capture actual demo screens
         run: flutter test test/visual_review_test.dart --update-goldens
@@ -53,6 +54,8 @@ jobs:
       - run: flutter pub get --enforce-lockfile
       - run: flutter test
       - run: ./tool/test-preview-plan.ps1
+        shell: pwsh
+      - run: ./tool/test-publish-preview-plan.ps1
         shell: pwsh
       - name: Build portable package
         shell: pwsh

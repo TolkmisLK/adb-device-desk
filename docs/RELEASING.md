@@ -31,7 +31,9 @@ An authorized maintainer can prepare an **unpublished prerelease draft** without
 
 `tool/test-preview-plan.ps1` checks valid naming, version equality and an exact commit without making GitHub writes. The preview tag suffix identifies the release candidate; the app and ZIP retain the matching base pubspec version. CI and draft assets remain evidence for later physical checks, not public stable publication.
 
-Tag the checked commit `v0.1.0`. The release workflow rebuilds, retests and creates a **draft** with ZIP/checksum attachments. After acceptance, publish that draft and update CHANGELOG/README with the real release state. If a candidate fails, fix it and validate again before publishing; do not relabel an untested build as stable.
+For a public preview, merge the reviewed candidate, then tag that exact main commit with the next unused `v<pubspec version>-preview.<number>` tag. For this version, use `v0.1.0-preview.2`; the older `v0.1.0-preview.1` is an unpublished draft targeting earlier code and must remain untouched. The tag-triggered `Publish Windows preview` workflow repeats locked dependency resolution, formatting, static analysis, smoke and Flutter tests, Windows packaging, extracted startup, checksum and startup-report checks. Only after these pass does a separate contents-write job publish a prerelease with the ZIP, SHA-256 file and startup JSON. It rejects an existing release with the same tag. Verify the public release assets and update the project status with its actual URL.
+
+Batch installation still needs the two-device physical check above; the preview notes state that limit. A stable `v0.1.0` release is a later decision after the remaining acceptance gates. If any candidate fails, fix and validate it before tagging another candidate.
 
 ## GitHub project setup
 

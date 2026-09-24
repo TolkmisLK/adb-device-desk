@@ -1,15 +1,13 @@
-Windows x64 desktop preview for connecting and diagnosing Android devices.
+ADB Device Desk for Windows x64 (public preview).
 
-**Unpublished development preview, not stable or physical-device acceptance.** Windows CI verifies the packaged app starts, loads its bundled runtime and closes normally. Clean consumer Windows and Android USB/wireless/APK/screenshot/log workflows remain untested on actual user hardware. Keep this release as a draft until the recorded release gates are met.
+- View connected Android devices and their authorization states.
+- Pair and connect over Wi-Fi with separate pairing and connection ports.
+- Install one APK on the selected device, or explicitly select multiple ready devices to install the same APK sequentially. Each device gets its own result; a failed target does not stop later targets.
+- Capture PNG screenshots, inspect device information, export logcat, and run connection diagnostics.
+- Use the Chinese or English interface with automatic light and dark themes.
 
-- Device list with ready, offline and authorization states.
-- Separate wireless pairing and connection steps.
-- ADB and TCP diagnostics with structured report export.
-- APK installation, screenshots, device information and logcat export.
-- Chinese/English UI and automatic light/dark theme.
+Download the Windows ZIP and extract the whole archive. Install [Android Platform-Tools](https://developer.android.com/tools/releases/platform-tools) separately, then select `adb.exe` in Settings. ADB is not bundled. The SHA-256 file lets you verify the ZIP. This portable build is unsigned.
 
-Download the Windows ZIP and extract the entire archive. Install Android Platform-Tools separately and select adb.exe in Settings. The SHA-256 file verifies the downloaded archive. This build is unsigned.
+The package passes automated Windows build, test and extracted-startup checks. Multi-device batch installation has not yet been exercised on physical devices for this preview. Installation accepts one APK file at a time; split APK / APKS / XAPK packages are unsupported. Exported raw logcat may contain private data, so review it before sharing.
 
-Windows x64 安卓设备连接与诊断工具。完整解压 ZIP 后运行，在设置中选择官方 Platform-Tools 的 adb.exe。配对端口与连接端口需要分别填写。原始设备日志分享前请检查。
-
-Known limits: single APK only; no mirroring, batch operations or automatic reconnect. An open TCP port is not proof of ADB authorization.
+Windows x64 公开预览版。完整解压 ZIP 后运行，另行安装 Android 官方 Platform-Tools，并在设置中选择 `adb.exe`。可明确勾选多台已连接设备，将同一个 APK 逐台安装并查看各台结果；单台失败不影响后续设备。本预览版的批量安装尚未完成多台真机验收。原始日志分享前请检查。

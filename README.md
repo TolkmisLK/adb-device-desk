@@ -4,9 +4,9 @@ Connect Android devices, check why ADB is failing, and save screenshots or logs 
 
 连接安卓设备，排查 ADB 连接问题，在电脑上安装 APK、截图和导出日志。
 
-**Status:** v0.1.0 development preview. A Windows x64 package has passed CI build and startup checks. There is no public release or download package yet. See the [validation record](docs/VALIDATION.md) for the scope of device and package checks.
+**Status:** v0.1.0 development preview. A Windows x64 package has passed CI build and startup checks. Check [Releases](https://github.com/TolkmisLK/adb-device-desk/releases) for published downloads and the [validation record](docs/VALIDATION.md) for device and package checks.
 
-**状态：** v0.1.0 开发预览。Windows x64 程序包已通过 CI 构建与启动检查，目前没有公开下载包。设备和程序包的验证范围见[验证记录](docs/VALIDATION.md)。
+**状态：** v0.1.0 开发预览。Windows x64 程序包已通过 CI 构建与启动检查。公开下载请查看 [Releases](https://github.com/TolkmisLK/adb-device-desk/releases)，设备和程序包的验证范围见[验证记录](docs/VALIDATION.md)。
 
 [中文准备与运行](#使用前准备) · [English setup](#english) · [Validation record / 验证记录](docs/VALIDATION.md)
 
@@ -33,7 +33,7 @@ Actual Flutter rendering with demo data; not a Windows or physical-device accept
 3. USB 连接：开启设备的开发者选项与 USB 调试，使用数据线连接，在设备上接受授权。
 4. 无线连接：打开「无线连接」，按页面上的配对、连接两个步骤操作。
 
-ADB 不随本项目分发。应用不要求 Android Studio；从源码编译桌面应用才需要 Flutter 与 Visual Studio。目前只有未公开的 Release 草稿，不能从公开页面下载安装包。
+ADB 不随本项目分发。应用不要求 Android Studio；从源码编译桌面应用才需要 Flutter 与 Visual Studio。可用下载包以 [Releases](https://github.com/TolkmisLK/adb-device-desk/releases) 页面为准，旧草稿不作为下载入口。
 
 ### 从源码运行（Windows）
 

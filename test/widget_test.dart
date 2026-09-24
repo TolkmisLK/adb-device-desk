@@ -57,7 +57,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Batch install APK'));
     await tester.tap(find.text('Batch install APK'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 200));
     expect(find.text('Select install targets'), findsOneWidget);
     expect(find.text('First'), findsWidgets);
     expect(find.text('Second'), findsWidgets);
@@ -75,7 +75,7 @@ void main() {
         matching: find.text('Second'),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 200));
     final selected = tester.widget<FilledButton>(
       find.ancestor(
         of: find.text('Choose APK'),
