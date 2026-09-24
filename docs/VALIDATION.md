@@ -4,7 +4,7 @@
 
 The existing single-device application was reported usable after the 2026-09-23 candidate. This report does not establish which physical-device cases passed. The new batch path selects ready devices explicitly, runs the existing targeted APK install sequentially with its three-minute per-device timeout, and records each result even when a preceding target fails. It does not change debugging modes or stop the shared ADB server.
 
-New coordinator and widget tests are included in the CI suite. Batch installation has no physical-device acceptance in this record; the two-device and failure-continuation checks in [RELEASING.md](RELEASING.md) remain open. CI commit and run results will be recorded after completion.
+CI on candidate `1ea36a2` passed both jobs in [run 35977379932](https://github.com/TolkmisLK/adb-device-desk/actions/runs/35977379932): formatting, static analysis, ten core smoke checks, six public-preview plan checks, 37 Flutter tests (one visual capture test skipped), Windows tests, both release-plan checks, portable ZIP build and extracted-window startup. These tests include the batch coordinator's failure continuation and serial execution, plus the explicit-selection dialog. Batch installation has no physical-device acceptance in this record; the two-device and failure-continuation checks in [RELEASING.md](RELEASING.md) remain open.
 
 ## First-use candidate — 2026-09-23 (Asia/Shanghai)
 
