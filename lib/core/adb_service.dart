@@ -27,6 +27,7 @@ class AdbService implements DeviceService {
     Duration timeout = const Duration(seconds: 15),
     String? input,
     String failureCode = 'command_failed',
+    String? Function(CommandOutput)? classifyFailure,
   }) async {
     final result = await runner.run(
       executable,
@@ -49,6 +50,8 @@ class AdbService implements DeviceService {
           ).hasMatch(output)) {
         throw const DeskException('device_missing');
       }
+      final specificFailure = classifyFailure?.call(result);
+      if (specificFailure != null) throw DeskException(specificFailure);
       throw DeskException(failureCode);
     }
     return result;
@@ -138,10 +141,30 @@ class AdbService implements DeviceService {
       _target(serial, ['install', '-r', file.path]),
       timeout: const Duration(minutes: 3),
       failureCode: 'install_failed',
+      classifyFailure: (output) =>
+          _installFailureCode('${output.text}\n${output.errorText}'),
     );
+    final failure = _installFailureCode('${result.text}\n${result.errorText}');
+    if (failure != null) throw DeskException(failure);
     if (!RegExp(r'^Success\s*$', multiLine: true).hasMatch(result.text)) {
       throw const DeskException('install_failed');
     }
+  }
+
+  /// Keep device output private. Only known package manager failures become
+  /// stable, user-facing codes; unrecognized responses use install_failed.
+  static String? _installFailureCode(String output) {
+    final match = RegExp(
+      r'Failure \[(INSTALL_FAILED_[A-Z_]+)(?::[^\r\n]*)?\]',
+    ).firstMatch(output);
+    return switch (match?.group(1)) {
+      'INSTALL_FAILED_INSUFFICIENT_STORAGE' => 'install_no_space',
+      'INSTALL_FAILED_UPDATE_INCOMPATIBLE' => 'install_signature_mismatch',
+      'INSTALL_FAILED_VERSION_DOWNGRADE' => 'install_version_downgrade',
+      'INSTALL_FAILED_OLDER_SDK' => 'install_older_sdk',
+      'INSTALL_FAILED_NO_MATCHING_ABIS' => 'install_no_matching_abi',
+      _ => null,
+    };
   }
 
   @override

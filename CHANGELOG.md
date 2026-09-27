@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 — Unreleased
+## 0.1.0 — Preview series
 
 - Device discovery, selection and state-aware actions.
 - Android wireless pairing and connection as separate steps.
@@ -8,3 +8,4 @@
 - Single APK installation, PNG screenshots, device info and bounded logcat export.
 - Chinese/English interface, system theme and an isolated demo mode.
 - Automated core, subprocess and widget tests; Windows packaging workflow.
+- Preview.3 candidate: show specific per-device guidance for five ADB package-install failures.
