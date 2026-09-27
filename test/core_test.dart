@@ -298,10 +298,48 @@ adb: something failed
       );
       await expectLater(
         failing.install('USB1', apk.path),
-        throwsA(code('install_failed')),
+        throwsA(code('install_signature_mismatch')),
       );
     },
   );
+  test('known package manager failures retain actionable codes', () async {
+    final directory = await Directory.systemTemp.createTemp('adb-desk-test-');
+    addTearDown(() => directory.delete(recursive: true));
+    final apk = File('${directory.path}/example.apk');
+    await apk.writeAsBytes([0]);
+    for (final (reason, expected) in [
+      ('INSTALL_FAILED_INSUFFICIENT_STORAGE', 'install_no_space'),
+      ('INSTALL_FAILED_UPDATE_INCOMPATIBLE', 'install_signature_mismatch'),
+      ('INSTALL_FAILED_VERSION_DOWNGRADE', 'install_version_downgrade'),
+      ('INSTALL_FAILED_OLDER_SDK', 'install_older_sdk'),
+      ('INSTALL_FAILED_NO_MATCHING_ABIS', 'install_no_matching_abi'),
+    ]) {
+      for (final exitCode in [0, 1]) {
+        final service = AdbService(
+          runner: StubRunner(
+            (_, _) => output(
+              '',
+              exit: exitCode,
+              error:
+                  'adb: failed to install example.apk: Failure [$reason: details]',
+            ),
+          ),
+        );
+        await expectLater(
+          service.install('USB1', apk.path),
+          throwsA(code(expected)),
+          reason: '$reason, exit code $exitCode',
+        );
+      }
+    }
+    final unknown = AdbService(
+      runner: StubRunner((_, _) => output('Failure [INSTALL_FAILED_UNKNOWN]')),
+    );
+    await expectLater(
+      unknown.install('USB1', apk.path),
+      throwsA(code('install_failed')),
+    );
+  });
   test(
     'nonzero install distinguishes package failure from a lost device',
     () async {

@@ -103,6 +103,26 @@ const _messages = <String, List<String>>{
     '安装失败。检查 APK 是否兼容、签名是否匹配以及设备空间是否充足。',
     'Installation failed. Check APK compatibility, signing identity and available device storage.',
   ],
+  'install_no_space': [
+    '设备存储空间不足，无法安装 APK。清理空间后重试。',
+    'The device does not have enough storage to install this APK. Free up space and retry.',
+  ],
+  'install_signature_mismatch': [
+    '设备上已有同包名应用，但签名不匹配。请使用相同签名的更新包；卸载旧应用可能清除其数据。',
+    'An app with the same package name has a different signature. Use an update signed with the same key; uninstalling the existing app may erase its data.',
+  ],
+  'install_version_downgrade': [
+    '设备上已有更新版本。请选择版本号不低于已安装应用的 APK。',
+    'A newer version is already installed. Choose an APK with a version code at least as high as the installed app.',
+  ],
+  'install_older_sdk': [
+    '设备的 Android 版本低于此 APK 要求的最低版本。请使用兼容版本。',
+    'This APK requires a newer Android version than the device provides. Use a compatible build.',
+  ],
+  'install_no_matching_abi': [
+    '此 APK 未包含适合该设备处理器架构的程序代码。请选择兼容构建。',
+    'This APK does not contain native code for the device CPU architecture. Choose a compatible build.',
+  ],
   'invalid_screenshot': [
     '设备未返回有效的 PNG 截图，未保存文件。',
     'The device did not return a PNG screenshot; no file was saved.',
