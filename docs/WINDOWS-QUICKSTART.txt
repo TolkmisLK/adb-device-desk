@@ -8,10 +8,22 @@ ADB Device Desk 0.1.0
    the Wireless guide for Android 11+ pairing and connection.
 
 中文：
-1. 完整解压，保留 DLL 文件与 data 文件夹。
-2. 从上方 Android 官方地址下载 Platform-Tools。
-3. 启动 adb_device_desk.exe，在设置中选择 adb.exe 并验证保存。
-4. 使用 USB 数据线并在设备上授权，或按无线连接向导配对、连接。
+当前公开预览版：v0.1.0-preview.3（程序基础版本为 0.1.0）。
+下载与完整中文指南：
+https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.3
+https://github.com/TolkmisLK/adb-device-desk/blob/main/docs/USER-GUIDE.zh-CN.md
+
+1. 完整解压 ZIP，保留 DLL 文件与 data 文件夹；运行 adb_device_desk.exe。
+2. 从上方 Android 官方地址下载 Windows 版 Platform-Tools 并解压；安装包不附带 ADB。
+3. 在程序「设置」中选择 Platform-Tools 内的 adb.exe 并「验证并保存」。
+4. USB：开启开发者选项与 USB 调试，用数据线连接并在设备上接受授权，刷新设备列表。
+5. 无线（Android 11+）：先在「使用配对码配对设备」弹窗读取地址、配对端口和六位码完成配对；再回到「无线调试」主页面，用其连接端口连接，刷新设备列表。两种端口通常不同。
+6. 单台安装：选中已连接设备，点「安装 APK」，选一个 .apk 并核对确认框。
+   批量安装：点「批量安装 APK」，逐台勾选目标，选同一个 .apk，核对后确认；逐台显示结果，单台失败不影响后续设备。
+7. 安装失败可能提示存储不足、签名不匹配、版本降级、Android 版本过低或 CPU 架构不匹配；其他失败显示一般提示。批量和新增提示仍缺少真机验收。
+8. 截图保存为 PNG；日志导出为原始 logcat，分享前自行检查隐私内容。诊断 JSON 不含序列号、地址、配对码或原始日志。
+
+仅支持 Windows x64，单次选择一个 APK；不支持 APKS/XAPK、投屏或自动重连。
 
 Pairing and connection ports are different. Do not interchange them.
 配对端口与连接端口不同，请分别填写。
@@ -21,3 +33,4 @@ Reports omit device identifiers. Raw device logs are NOT automatically redacted.
 
 This portable build is not code-signed. Obtain builds from the project owner.
 No ADB executable is bundled. Third-party components retain their own licenses.
+本便携包未签名，请从项目发布页取得；不附带 ADB。第三方组件各自遵循其许可。

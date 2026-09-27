@@ -14,6 +14,20 @@
 
 端口检查不能确定具体根因，也不使用 ping 作为设备是否可连接的结论。ICMP 和 TCP 可能受到不同的网络规则影响。
 
+### 安装失败的中文细查
+
+机伴仅在 ADB 返回相应标准代码时显示下面的明确原因；未匹配的失败保留通用提示。若批量安装，只针对结果中失败的那台设备检查，不要把一台成功推断成全部成功。
+
+| ADB 代码 | 含义与处理 |
+| --- | --- |
+| `INSTALL_FAILED_INSUFFICIENT_STORAGE` | 设备空间不足；清理空间后重试。 |
+| `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | 同包名旧应用签名不同；使用同一签名的更新包。卸载旧应用可能丢失数据。 |
+| `INSTALL_FAILED_VERSION_DOWNGRADE` | 设备已有更高版本；选择版本号不低于现有版本的 APK。 |
+| `INSTALL_FAILED_OLDER_SDK` | 设备 Android 版本低于 APK 的最低要求；选择兼容版本。 |
+| `INSTALL_FAILED_NO_MATCHING_ABIS` | APK 不含适合设备处理器架构的原生代码；选择兼容构建。 |
+
+每次只支持一个 `.apk`，不支持 split APK、APKS 或 XAPK。安装超时后先在设备侧核实是否已装，再决定是否重试。此错误分类有自动化覆盖，但新提示尚无真实设备验收。完整流程见[中文使用指南](USER-GUIDE.zh-CN.md)。
+
 The diagnostic tool checks one explicitly supplied TCP endpoint. It does not infer a firewall or route failure merely from a timeout, and it does not treat ping as proof of ADB connectivity.
 
 官方参考 / References:
