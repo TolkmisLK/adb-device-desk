@@ -4,15 +4,17 @@ Connect Android devices, check why ADB is failing, and save screenshots or logs 
 
 连接安卓设备，排查 ADB 连接问题，在电脑上安装 APK、截图和导出日志。
 
-**Status:** v0.1.0 development preview. A Windows x64 package has passed CI build and startup checks. Check [Releases](https://github.com/TolkmisLK/adb-device-desk/releases) for published downloads and the [validation record](docs/VALIDATION.md) for device and package checks.
+**Status:** The [v0.1.0-preview.3 Windows x64 prerelease](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.3) is public. Its package passed automated build and extracted-startup checks; two-device batch installation and the new failure-specific messages have no recorded physical-device acceptance. See the [validation record](docs/VALIDATION.md).
 
-**状态：** v0.1.0 开发预览。Windows x64 程序包已通过 CI 构建与启动检查。公开下载请查看 [Releases](https://github.com/TolkmisLK/adb-device-desk/releases)，设备和程序包的验证范围见[验证记录](docs/VALIDATION.md)。
+**状态：** [v0.1.0-preview.3 Windows x64 公开预览版](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.3)已发布。程序包通过自动化构建和解压后启动检查；两台真机批量安装与新版错误细分提示尚无真机验收记录，详见[验证记录](docs/VALIDATION.md)。
 
-[中文准备与运行](#使用前准备) · [English setup](#english) · [Validation record / 验证记录](docs/VALIDATION.md)
+[完整中文使用指南](docs/USER-GUIDE.zh-CN.md) · [中文准备与运行](#使用前准备) · [English setup](#english) · [Validation record / 验证记录](docs/VALIDATION.md)
 
 ![ADB Device Desk — demo data](docs/screenshots/devices.png)
 
 Actual Flutter rendering with demo data; not a Windows or physical-device acceptance screenshot. [Dark theme](docs/screenshots/devices-dark.png) · [Wireless](docs/screenshots/wireless.png) · [Diagnostics](docs/screenshots/diagnostics.png)
+
+以上为 Flutter 测试渲染的演示数据，不是 Windows 或安卓真机验收截图。[深色主题](docs/screenshots/devices-dark.png) · [无线连接](docs/screenshots/wireless.png) · [连接诊断](docs/screenshots/diagnostics.png)
 
 ## 中文
 
@@ -28,12 +30,12 @@ Actual Flutter rendering with demo data; not a Windows or physical-device accept
 
 ### 使用前准备
 
-1. 从 [Android 官方页面](https://developer.android.com/tools/releases/platform-tools)下载 Platform-Tools 并解压。
-2. 在应用「设置」中选择 `adb.exe`，点击「验证并保存」。如果已将 ADB 加入 PATH，保留 `adb` 即可。
-3. USB 连接：开启设备的开发者选项与 USB 调试，使用数据线连接，在设备上接受授权。
-4. 无线连接：打开「无线连接」，按页面上的配对、连接两个步骤操作。
+1. 从 [preview.3 发布页](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.3)下载 Windows x64 ZIP，**完整解压**后运行 `adb_device_desk.exe`。
+2. 从 [Android 官方页面](https://developer.android.com/tools/releases/platform-tools)下载 Platform-Tools 并解压。在应用「设置」中选择其中的 `adb.exe`，点击「验证并保存」。如果已将 ADB 加入 PATH，保留 `adb` 即可。
+3. USB 连接：开启设备的开发者选项与 USB 调试，使用数据线连接，在设备上接受授权；刷新并选择设备。
+4. 无线连接：在 Android 11+ 设备开启无线调试，先用配对弹窗的端口和六位码配对，再用无线调试主页面的**连接端口**连接；刷新并选择设备。
 
-ADB 不随本项目分发。应用不要求 Android Studio；从源码编译桌面应用才需要 Flutter 与 Visual Studio。可用下载包以 [Releases](https://github.com/TolkmisLK/adb-device-desk/releases) 页面为准，旧草稿不作为下载入口。
+ADB 不随本项目分发。应用不要求 Android Studio；从源码编译桌面应用才需要 Flutter 与 Visual Studio。详细的设备选择、单台与批量安装、五种错误提示、截图、日志和排错步骤见[中文使用指南](docs/USER-GUIDE.zh-CN.md)。旧草稿不作为下载入口。
 
 ### 从源码运行（Windows）
 
@@ -101,8 +103,16 @@ Diagnostic JSON uses a field whitelist and omits addresses, serials, file paths,
 - [Architecture / 架构](docs/ARCHITECTURE.md)
 - [Windows release checklist / Windows 发布检查](docs/RELEASING.md)
 - [Validation record / 验证记录](docs/VALIDATION.md)
-- [Security and data handling](SECURITY.md)
+- [中文使用指南 / Chinese user guide](docs/USER-GUIDE.zh-CN.md)
+- [Security and data handling / 安全与数据处理](SECURITY.md)
+- [Contribution guide / 贡献指南](CONTRIBUTING.md)
+- [Changelog / 更新记录](CHANGELOG.md)
+- [Development handoff / 开发交接](docs/HANDOFF.md)
+- [Wireless discovery / 无线发现](docs/WIRELESS-DISCOVERY.md)
+- [Preview release notes / 预览版说明](docs/RELEASE-NOTES.md)
 
 ## License
 
 MIT. Flutter, Dart and third-party packages retain their respective licenses. Android Debug Bridge is a separate tool; this project is not affiliated with Google or the Android project.
+
+项目采用 MIT 许可证；Flutter、Dart 和第三方包分别遵守各自许可。Android Debug Bridge 是单独提供的工具，本项目与 Google 或 Android 项目没有隶属关系。

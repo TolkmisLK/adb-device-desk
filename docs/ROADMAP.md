@@ -6,7 +6,7 @@
 
 核心流程：配置 ADB → 发现/配对设备 → 明确选择设备 → 诊断或操作 → 导出结果。
 
-### Acceptance criteria
+### 验收标准 / Acceptance criteria
 
 - 不安装 ADB 时，界面可启动并提供可执行的配置步骤。
 - 展示 USB、TCP 和 ADB 已发现的 mDNS 设备；不把未经授权或离线设备当作可操作设备。
@@ -23,11 +23,11 @@
 
 候选项：设备备注、最近连接（明确选择是否记忆地址）、更细的错误解释、mDNS 连接与断开体验。先收集问题，再确定范围。
 
-## Later
+## 后续候选 / Later
 
 同一 APK 的多设备批量安装已纳入首版；投屏整合、其他批量操作和 macOS 支持单独评估。首版不为这些候选需求引入额外框架。
 
-## Engineering decisions
+## 工程决定 / Engineering decisions
 
 - Flutter 桌面与 Dart；调用官方 ADB，不重新实现协议。
 - 仅使用一个运行时插件 `file_selector` 提供系统文件选择框。
