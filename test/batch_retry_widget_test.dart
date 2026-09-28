@@ -126,7 +126,10 @@ void main() {
       expect(continueButton.onPressed, isNull);
       await tester.tap(find.byType(CheckboxListTile));
       await tester.pump(const Duration(milliseconds: 200));
-      await tester.tap(find.text('Cancel'));
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Cancel'));
+        await Future<void>.delayed(Duration.zero);
+      });
       await tester.pumpAndSettle();
       expect(service.attempted, ['one', 'two']);
 
@@ -137,7 +140,10 @@ void main() {
       );
       await tester.tap(find.byType(CheckboxListTile));
       await tester.pump(const Duration(milliseconds: 200));
-      await tester.tap(find.text('Continue'));
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Continue'));
+        await Future<void>.delayed(Duration.zero);
+      });
       await tester.pump(const Duration(milliseconds: 200));
       expect(find.text('Confirm failed-install retry'), findsOneWidget);
       final nextAttempt = service.attempted.length + 1;
@@ -169,7 +175,10 @@ void main() {
     await openFailedRetry(tester, service);
     await tester.tap(find.byType(CheckboxListTile));
     await tester.pump(const Duration(milliseconds: 200));
-    await tester.tap(find.text('Continue'));
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Continue'));
+      await Future<void>.delayed(Duration.zero);
+    });
     await tester.pump(const Duration(milliseconds: 200));
     service.offlineOnRead = service.deviceReads + 1;
     await tester.runAsync(() async {
