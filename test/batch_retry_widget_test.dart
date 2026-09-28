@@ -104,6 +104,14 @@ Future<void> openFailedRetry(WidgetTester tester, RetryFixture service) async {
   await tester.pump(const Duration(milliseconds: 200));
 }
 
+Finder get retryConfirmationContinue => find.descendant(
+  of: find.ancestor(
+    of: find.text('Confirm failed-install retry'),
+    matching: find.byType(AlertDialog),
+  ),
+  matching: find.text('Continue'),
+);
+
 void main() {
   testWidgets(
     'retry lists only failures, starts unchecked, and cancel does not install',
@@ -148,7 +156,7 @@ void main() {
       expect(find.text('Confirm failed-install retry'), findsOneWidget);
       final nextAttempt = service.attempted.length + 1;
       await tester.runAsync(() async {
-        await tester.tap(find.text('Continue'));
+        await tester.tap(retryConfirmationContinue);
         await service
             .waitForAttempts(nextAttempt)
             .timeout(const Duration(seconds: 10));
@@ -182,7 +190,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
     service.offlineOnRead = service.deviceReads + 1;
     await tester.runAsync(() async {
-      await tester.tap(find.text('Continue'));
+      await tester.tap(retryConfirmationContinue);
       await service
           .waitForRead(service.offlineOnRead!)
           .timeout(const Duration(seconds: 10));
