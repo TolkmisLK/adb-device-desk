@@ -19,12 +19,14 @@ class DeskScreen extends StatefulWidget {
     required this.english,
     required this.onLanguageChanged,
     this.service,
+    this.selectApk,
   });
   final Settings settings;
   final bool demo;
   final bool english;
   final ValueChanged<bool> onLanguageChanged;
   final DeviceService? service;
+  final Future<XFile?> Function()? selectApk;
   @override
   State<DeskScreen> createState() => _DeskScreenState();
 }
@@ -191,13 +193,17 @@ class _DeskScreenState extends State<DeskScreen> {
       ) ??
       false;
 
+  Future<XFile?> chooseApk() =>
+      widget.selectApk?.call() ??
+      openFile(
+        acceptedTypeGroups: const [
+          XTypeGroup(label: 'APK', extensions: ['apk']),
+        ],
+      );
+
   Future<void> install() async {
     final serial = selected!;
-    final apk = await openFile(
-      acceptedTypeGroups: const [
-        XTypeGroup(label: 'APK', extensions: ['apk']),
-      ],
-    );
+    final apk = await chooseApk();
     if (apk == null || !mounted) return;
     if (!await confirm(
       t('安装 APK', 'Install APK'),
@@ -271,11 +277,7 @@ class _DeskScreenState extends State<DeskScreen> {
       ),
     );
     if (serials == null || !mounted) return;
-    final apk = await openFile(
-      acceptedTypeGroups: const [
-        XTypeGroup(label: 'APK', extensions: ['apk']),
-      ],
-    );
+    final apk = await chooseApk();
     if (apk == null || !mounted) return;
     if (!await confirm(
       t('批量安装 APK', 'Install APK on multiple devices'),
