@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:adb_device_desk/core/demo_service.dart';
@@ -10,12 +11,23 @@ import 'package:flutter_test/flutter_test.dart';
 
 class RetryFixture extends DemoService {
   final attempted = <String>[];
+  final readWaiters = <int, Completer<void>>{};
+  final attemptWaiters = <int, Completer<void>>{};
   int deviceReads = 0;
   int? offlineOnRead;
+
+  Future<void> waitForRead(int count) => deviceReads >= count
+      ? Future<void>.value()
+      : (readWaiters[count] ??= Completer<void>()).future;
+
+  Future<void> waitForAttempts(int count) => attempted.length >= count
+      ? Future<void>.value()
+      : (attemptWaiters[count] ??= Completer<void>()).future;
 
   @override
   Future<List<AdbDevice>> devices() async {
     deviceReads++;
+    readWaiters.remove(deviceReads)?.complete();
     return [
       const AdbDevice('one', 'device', model: 'First'),
       AdbDevice(
@@ -32,6 +44,7 @@ class RetryFixture extends DemoService {
   @override
   Future<void> install(String serial, String path) async {
     attempted.add(serial);
+    attemptWaiters.remove(attempted.length)?.complete();
     if (serial == 'two' &&
         attempted.where((value) => value == 'two').length == 1) {
       throw const DeskException('install_failed');
@@ -40,12 +53,10 @@ class RetryFixture extends DemoService {
 }
 
 Future<RetryFixture> startFailedBatch(WidgetTester tester) async {
-  final directory = await Directory.systemTemp.createTemp(
-    'batch-retry-widget-',
-  );
-  addTearDown(() => directory.delete(recursive: true));
+  final directory = Directory.systemTemp.createTempSync('batch-retry-widget-');
+  addTearDown(() => directory.deleteSync(recursive: true));
   final apk = File('${directory.path}${Platform.pathSeparator}example.apk');
-  await apk.writeAsBytes([0]);
+  apk.writeAsBytesSync([0]);
   final service = RetryFixture();
 
   tester.view.physicalSize = const Size(1280, 900);
@@ -82,14 +93,23 @@ Future<RetryFixture> startFailedBatch(WidgetTester tester) async {
   return service;
 }
 
+Future<void> openFailedRetry(WidgetTester tester, RetryFixture service) async {
+  await tester.ensureVisible(find.text('Retry failed installs'));
+  final nextRead = service.deviceReads + 1;
+  await tester.runAsync(() async {
+    await tester.tap(find.text('Retry failed installs'));
+    await service.waitForRead(nextRead).timeout(const Duration(seconds: 10));
+    await Future<void>.delayed(Duration.zero);
+  });
+  await tester.pump(const Duration(milliseconds: 200));
+}
+
 void main() {
   testWidgets(
     'retry lists only failures, starts unchecked, and cancel does not install',
     (tester) async {
       final service = await startFailedBatch(tester);
-      await tester.ensureVisible(find.text('Retry failed installs'));
-      await tester.tap(find.text('Retry failed installs'));
-      await tester.pump(const Duration(milliseconds: 200));
+      await openFailedRetry(tester, service);
 
       expect(find.text('Select failed installs to retry'), findsOneWidget);
       expect(find.byType(CheckboxListTile), findsOneWidget);
@@ -110,8 +130,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(service.attempted, ['one', 'two']);
 
-      await tester.tap(find.text('Retry failed installs'));
-      await tester.pump(const Duration(milliseconds: 200));
+      await openFailedRetry(tester, service);
       expect(
         tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
         false,
@@ -121,7 +140,14 @@ void main() {
       await tester.tap(find.text('Continue'));
       await tester.pump(const Duration(milliseconds: 200));
       expect(find.text('Confirm failed-install retry'), findsOneWidget);
-      await tester.tap(find.text('Continue'));
+      final nextAttempt = service.attempted.length + 1;
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Continue'));
+        await service
+            .waitForAttempts(nextAttempt)
+            .timeout(const Duration(seconds: 10));
+        await Future<void>.delayed(Duration.zero);
+      });
       await tester.pumpAndSettle();
 
       expect(service.attempted, ['one', 'two', 'two']);
@@ -140,15 +166,19 @@ void main() {
     tester,
   ) async {
     final service = await startFailedBatch(tester);
-    await tester.ensureVisible(find.text('Retry failed installs'));
-    await tester.tap(find.text('Retry failed installs'));
-    await tester.pump(const Duration(milliseconds: 200));
+    await openFailedRetry(tester, service);
     await tester.tap(find.byType(CheckboxListTile));
     await tester.pump(const Duration(milliseconds: 200));
     await tester.tap(find.text('Continue'));
     await tester.pump(const Duration(milliseconds: 200));
     service.offlineOnRead = service.deviceReads + 1;
-    await tester.tap(find.text('Continue'));
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Continue'));
+      await service
+          .waitForRead(service.offlineOnRead!)
+          .timeout(const Duration(seconds: 10));
+      await Future<void>.delayed(Duration.zero);
+    });
     await tester.pumpAndSettle();
 
     expect(service.attempted, ['one', 'two']);
