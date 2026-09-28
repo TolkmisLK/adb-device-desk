@@ -2,9 +2,15 @@
 
 [中文验证记录](#中文验证记录按事件日期) · [English historical record](#multi-device-apk-installation--2026-09-24-asiashanghai)
 
-> 各节保留原事件日期和当时状态。2026-09-27 的 [preview.3 已公开](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.3)；早期“尚未公开”的记录是历史快照，不表示当前没有下载页。
+> 各节保留原事件日期和当时状态。当前下载入口以 [README](../README.md) 为准；早期“尚未公开”的记录是历史快照，不表示当前没有下载页。
 
-## Current public preview / 当前公开预览（2026-09-27）
+## Batch-install retry / 批量安装失败项重试（2026-09-28）
+
+Candidate `2cb3de47cbf822a811d3c0737d59161551a704bc` passed both jobs in [CI 36401754623](https://github.com/TolkmisLK/adb-device-desk/actions/runs/36401754623): formatting, static analysis, core checks, Flutter tests, Windows portable build and extracted-startup checks. New controlled widget tests cover explicit failed-target selection, cancellation without installation, preserving earlier successes after retry and aborting if a selected device goes offline before final confirmation. These use a fake ADB service and a temporary APK fixture; they do not install on physical devices. No local application, ADB or hardware tests were run for this change.
+
+候选提交 `2cb3de47cbf822a811d3c0737d59161551a704bc` 的[上述 CI](https://github.com/TolkmisLK/adb-device-desk/actions/runs/36401754623)两项任务均通过，包含格式、静态分析、核心检查、Flutter 测试、Windows 便携包构建及完整解压后启动检查。新增组件测试验证了失败项须明确选择、取消不会安装、重试后保留原成功结果，以及最终确认前设备转为离线时不开始重试。测试使用伪 ADB 服务和临时 APK 文件，没有对真机安装。本次未运行本地应用、ADB 或硬件测试；新功能没有真机验收记录。
+
+## Published preview / 已发布预览（2026-09-27）
 
 The [v0.1.0-preview.3 release page](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.3) is public and points to `5f5f710`. Its release notes report automated Windows build, tests and extracted-startup checks. The repository records no physical two-device batch-installation acceptance or device validation of the five new failure-specific messages. Do not infer those from a public download or CI. This section records the published status, not a new local ADB or hardware test.
 

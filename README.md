@@ -4,9 +4,9 @@ Connect Android devices, check why ADB is failing, and save screenshots or logs 
 
 连接安卓设备，排查 ADB 连接问题，在电脑上安装 APK、截图和导出日志。
 
-**Status:** The [v0.1.0-preview.3 Windows x64 prerelease](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.3) is public. Its package passed automated build and extracted-startup checks; two-device batch installation and the new failure-specific messages have no recorded physical-device acceptance. See the [validation record](docs/VALIDATION.md).
+**Status:** The [v0.1.0-preview.4 Windows x64 prerelease](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.4) is public. Its package passed automated build and extracted-startup checks; two-device batch installation, failure-specific messages and failed-install retry have no recorded physical-device acceptance. See the [validation record](docs/VALIDATION.md).
 
-**状态：** [v0.1.0-preview.3 Windows x64 公开预览版](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.3)已发布。程序包通过自动化构建和解压后启动检查；两台真机批量安装与新版错误细分提示尚无真机验收记录，详见[验证记录](docs/VALIDATION.md)。
+**状态：** [v0.1.0-preview.4 Windows x64 公开预览版](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.4)已发布。程序包通过自动化构建和解压后启动检查；两台真机批量安装、错误细分提示和失败项重试尚无真机验收记录，详见[验证记录](docs/VALIDATION.md)。
 
 [完整中文使用指南](docs/USER-GUIDE.zh-CN.md) · [中文准备与运行](#使用前准备) · [English setup](#english) · [Validation record / 验证记录](docs/VALIDATION.md)
 
@@ -30,7 +30,7 @@ Actual Flutter rendering with demo data; not a Windows or physical-device accept
 
 ### 使用前准备
 
-1. 从 [preview.3 发布页](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.3)下载 Windows x64 ZIP，**完整解压**后运行 `adb_device_desk.exe`。
+1. 从 [preview.4 发布页](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.4)下载 Windows x64 ZIP，**完整解压**后运行 `adb_device_desk.exe`。
 2. 从 [Android 官方页面](https://developer.android.com/tools/releases/platform-tools)下载 Platform-Tools 并解压。在应用「设置」中选择其中的 `adb.exe`，点击「验证并保存」。如果已将 ADB 加入 PATH，保留 `adb` 即可。
 3. USB 连接：开启设备的开发者选项与 USB 调试，使用数据线连接，在设备上接受授权；刷新并选择设备。
 4. 无线连接：在 Android 11+ 设备开启无线调试，先用配对弹窗的端口和六位码配对，再用无线调试主页面的**连接端口**连接；刷新并选择设备。
