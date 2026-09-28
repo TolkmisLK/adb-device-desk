@@ -21,6 +21,25 @@ class InstallFixture extends DemoService {
 
 void main() {
   test(
+    'retry candidates exclude successful, offline and newly connected devices',
+    () {
+      const previous = [
+        InstallResult('succeeded', null),
+        InstallResult('failed-ready', 'install_failed'),
+        InstallResult('failed-offline', 'command_timeout'),
+        InstallResult('missing', 'device_missing'),
+      ];
+      const current = [
+        AdbDevice('succeeded', 'device'),
+        AdbDevice('failed-ready', 'device'),
+        AdbDevice('failed-offline', 'offline'),
+        AdbDevice('new-device', 'device'),
+      ];
+      expect(retryableBatchSerials(previous, current), ['failed-ready']);
+    },
+  );
+
+  test(
     'batch installs only explicit targets, serially, continuing after failure',
     () async {
       final service = InstallFixture();
