@@ -1,6 +1,6 @@
 # 机伴（ADB Device Desk）中文使用指南
 
-当前公开下载是 Windows x64 的 [v0.1.0-preview.3 预览版](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.3)。这是便携程序，适合在电脑上查看和操作已授权的 Android 设备。它不是手机应用，也不是正式稳定版。界面可切换中文和英文；本指南说明下载、首次连接、安装 APK 和导出证据的完整流程。
+当前公开下载是 Windows x64 的 [v0.1.0-preview.4 预览版](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.4)。这是便携程序，适合在电脑上查看和操作已授权的 Android 设备。它不是手机应用，也不是正式稳定版。界面可切换中文和英文；本指南说明下载、首次连接、安装 APK 和导出证据的完整流程。
 
 ![机伴设备页演示数据截图](screenshots/devices.png)
 
@@ -8,7 +8,7 @@
 
 ## 1. 下载并启动
 
-1. 打开 [preview.3 发布页](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.3)，下载 `adb-device-desk-0.1.0-windows-x64.zip`。如需校验下载完整性，同时下载同名 `.zip.sha256` 文件；按该文件中的 SHA-256 值核对 ZIP。文件名中的 `0.1.0` 是应用基础版本，发布标签中的 `preview.3` 是预览批次。
+1. 打开 [preview.4 发布页](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.4)，下载 `adb-device-desk-0.1.0-windows-x64.zip`。如需校验下载完整性，同时下载同名 `.zip.sha256` 文件；按该文件中的 SHA-256 值核对 ZIP。文件名中的 `0.1.0` 是应用基础版本，发布标签中的 `preview.4` 是预览批次。
 2. 把 ZIP **完整解压**到一个目录，保留 `.exe`、DLL、`data` 文件夹和其他随包文件。不要只复制 `adb_device_desk.exe`。运行该可执行文件；便携包未签名，请确认来源是本项目发布页。
 3. 另从 [Android 官方 Platform-Tools 页面](https://developer.android.com/tools/releases/platform-tools)下载并解压 Windows 版工具。机伴不附带 ADB，也无需安装完整 Android Studio。
 4. 打开机伴「设置」，选择 Platform-Tools 文件夹中的 `adb.exe`，点击「验证并保存」。若已经把 ADB 加入系统 `PATH`，可保留默认的 `adb` 并验证。
@@ -41,7 +41,7 @@
 
 点击「批量安装 APK」，在弹窗中**逐台勾选**目标。列表只提供已连接、可操作设备；至少勾选一台才能继续。选择同一个 APK，在最终确认框核对目标列表并确认。程序依次为各台设备执行安装，显示每台结果；一台失败不会阻止后续目标。它不支持给各台选择不同 APK，也不会批量执行截图或日志导出。两台真机批量安装与故障续行目前尚无真机验收记录，见[验证记录](VALIDATION.md)。
 
-后续源码版本会在批量结果中汇总成功、失败和待处理数量，并提供「重试失败项」。点击后，程序重新读取设备状态，只列出上轮失败的设备；离线或未检测到的设备不能勾选。需要再次逐台勾选，并在确认框核对原 APK 和目标。确认后程序还会再次核对设备状态；状态变化时整轮重试不会开始。原 APK 文件已移走时，请重新发起批量安装并选择文件。安装超时不代表设备端未完成，重试前请在设备上核实。**公开的 preview.3 尚不包含此重试入口**；新流程也尚无真机验收记录。
+preview.4 会在批量结果中汇总成功、失败和待处理数量，并提供「重试失败项」。点击后，程序重新读取设备状态，只列出上轮失败的设备；离线或未检测到的设备不能勾选。需要再次逐台勾选，并在确认框核对原 APK 和目标。确认后程序还会再次核对设备状态；状态变化时整轮重试不会开始。原 APK 文件已移走时，请重新发起批量安装并选择文件。安装超时不代表设备端未完成，重试前请在设备上核实。此流程已通过自动化组件测试，但尚无真机验收记录。
 
 ### 五类明确的安装失败
 
@@ -55,7 +55,7 @@
 | 系统版本过低 | `INSTALL_FAILED_OLDER_SDK` | 选择支持该设备 Android 版本的构建。 |
 | 处理器架构不匹配 | `INSTALL_FAILED_NO_MATCHING_ABIS` | 选择包含该设备 CPU 架构原生代码的构建。 |
 
-每次只接受单个 `.apk`，不支持 split APK、`.apks` 或 `.xapk`。错误细分有自动化测试，但 preview.3 的这五种提示尚无真实设备验收记录。
+每次只接受单个 `.apk`，不支持 split APK、`.apks` 或 `.xapk`。错误细分有自动化测试，但 preview.4 的这五种提示尚无真实设备验收记录。
 
 ## 4. 截图、日志和诊断
 
