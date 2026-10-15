@@ -9,11 +9,14 @@ ADB Device Desk 0.1.0
 5. After a batch install, review each device's result. To retry failures, select
    only the failed, ready devices you want and confirm the APK and targets again.
    Check the device first if an earlier install timed out.
+6. To stop a batch, choose Stop after current device. Its ADB install will finish
+   or time out; later targets will not start. Select Continue unattempted installs
+   to choose ready targets explicitly and confirm the APK and targets again.
 
 中文：
-本包预览批次：v0.1.0-preview.4（程序基础版本为 0.1.0）。
+本包预览批次：v0.1.0-preview.5 候选（程序基础版本为 0.1.0；以发布页状态为准）。
 下载与完整中文指南：
-https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.4
+https://github.com/TolkmisLK/adb-device-desk/releases
 https://github.com/TolkmisLK/adb-device-desk/blob/main/docs/USER-GUIDE.zh-CN.md
 
 1. 完整解压 ZIP，保留 DLL 文件与 data 文件夹；运行 adb_device_desk.exe。
@@ -24,8 +27,9 @@ https://github.com/TolkmisLK/adb-device-desk/blob/main/docs/USER-GUIDE.zh-CN.md
 6. 单台安装：选中已连接设备，点「安装 APK」，选一个 .apk 并核对确认框。
    批量安装：点「批量安装 APK」，逐台勾选目标，选同一个 .apk，核对后确认；逐台显示结果，单台失败不影响后续设备。
 7. 批量结果会汇总成功、失败和待处理数量。要重试，点「重试失败项」，重新核对设备状态，仅逐台勾选需要重试的失败设备，并再次确认原 APK 和目标；超时后先在设备上核实是否已安装。
-8. 安装失败可能提示存储不足、签名不匹配、版本降级、Android 版本过低或 CPU 架构不匹配；其他失败显示一般提示。批量和新增提示仍缺少真机验收。
-9. 截图保存为 PNG；日志导出为原始 logcat，分享前自行检查隐私内容。诊断 JSON 不含序列号、地址、配对码或原始日志。
+8. 要停止后续目标，点「完成当前设备后停止」；当前命令会结束或超时，后续设备不再安装。「继续未执行项」会重新读取状态，要求逐台勾选和再次确认；未勾选目标保留为未执行。
+9. 安装失败可能提示存储不足、签名不匹配、版本降级、Android 版本过低或 CPU 架构不匹配；其他失败显示一般提示。批量和新增提示仍缺少真机验收。
+10. 截图保存为 PNG；日志导出为原始 logcat，分享前自行检查隐私内容。诊断 JSON 不含序列号、地址、配对码或原始日志。
 
 仅支持 Windows x64，单次选择一个 APK；不支持 APKS/XAPK、投屏或自动重连。
 

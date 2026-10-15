@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:adb_device_desk/core/batch_install.dart';
 import 'package:adb_device_desk/core/demo_service.dart';
 import 'package:adb_device_desk/core/models.dart';
@@ -86,4 +88,44 @@ void main() {
     );
     expect(service.attempted, isEmpty);
   });
+
+  test(
+    'stop waits for the in-flight install and skips later targets',
+    () async {
+      final firstStarted = Completer<void>();
+      final finishFirst = Completer<void>();
+      final service = StoppableInstallFixture(firstStarted, finishFirst);
+      var stopping = false;
+      final future = installBatch(
+        service,
+        ['first', 'second', 'third'],
+        'example.apk',
+        stopRequested: () => stopping,
+      );
+      await firstStarted.future;
+      stopping = true;
+      expect(service.attempted, ['first']);
+      finishFirst.complete();
+      final results = await future;
+      expect(service.attempted, ['first']);
+      expect(results.map((result) => result.serial), ['first']);
+      expect(results.single.succeeded, isTrue);
+    },
+  );
+}
+
+class StoppableInstallFixture extends DemoService {
+  StoppableInstallFixture(this.started, this.release);
+  final Completer<void> started;
+  final Completer<void> release;
+  final attempted = <String>[];
+
+  @override
+  Future<void> install(String serial, String path) async {
+    attempted.add(serial);
+    if (serial == 'first') {
+      started.complete();
+      await release.future;
+    }
+  }
 }

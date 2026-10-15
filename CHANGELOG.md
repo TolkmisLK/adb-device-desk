@@ -2,6 +2,10 @@
 
 [中文更新记录](#中文更新记录) · [English](#changelog)
 
+## Unreleased candidate
+
+- Batch installation can stop after the current device finishes. Unattempted targets remain visible and require fresh device checks, explicit selection and confirmation before continuing. The current ADB command is not interrupted. This is not in preview.4 and has no physical-device acceptance yet.
+
 ## 0.1.0 — Preview series
 
 - Device discovery, selection and state-aware actions.
@@ -13,6 +17,10 @@
 - Preview.3 candidate: show specific per-device guidance for five ADB package-install failures.
 
 ## 中文更新记录
+
+### 未发布候选
+
+- 批量安装可在当前设备结束后停止后续目标。未执行项保留在列表中；继续时重新检查设备状态，逐台勾选并确认原 APK 与目标。当前 ADB 命令不会中断。preview.4 尚无此功能，候选功能也尚无真机验收记录。
 
 ### 0.1.0 预览版系列
 
