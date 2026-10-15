@@ -81,11 +81,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       await tester.tap(find.text('Choose APK'));
       await tester.pump(const Duration(milliseconds: 200));
-      await tester.runAsync(() async {
-        await tester.tap(find.text('Continue'));
-        await service.firstStarted.future.timeout(const Duration(seconds: 10));
-      });
+      await tester.tap(find.text('Continue'));
       await tester.pump(const Duration(milliseconds: 200));
+      await tester.runAsync(
+        () => service.firstStarted.future.timeout(const Duration(seconds: 10)),
+      );
 
       await tester.ensureVisible(find.text('Stop after current device'));
       await tester.tap(find.text('Stop after current device'));
@@ -118,14 +118,28 @@ void main() {
       );
       await tester.tap(find.byType(CheckboxListTile).first);
       await tester.pump(const Duration(milliseconds: 200));
+      final selectionContinue = find.descendant(
+        of: find.ancestor(
+          of: find.text('Select unattempted targets'),
+          matching: find.byType(AlertDialog),
+        ),
+        matching: find.text('Continue'),
+      );
       await tester.runAsync(() async {
-        await tester.tap(find.text('Continue'));
+        await tester.tap(selectionContinue);
         await Future<void>.delayed(Duration.zero);
       });
       await tester.pump(const Duration(milliseconds: 200));
       expect(find.text('Confirm unattempted installs'), findsOneWidget);
+      final confirmationContinue = find.descendant(
+        of: find.ancestor(
+          of: find.text('Confirm unattempted installs'),
+          matching: find.byType(AlertDialog),
+        ),
+        matching: find.text('Continue'),
+      );
       await tester.runAsync(() async {
-        await tester.tap(find.text('Continue'));
+        await tester.tap(confirmationContinue);
         await service
             .waitForRead(nextRead + 1)
             .timeout(const Duration(seconds: 10));
