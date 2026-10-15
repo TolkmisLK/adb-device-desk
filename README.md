@@ -4,9 +4,9 @@ Connect Android devices, check why ADB is failing, and save screenshots or logs 
 
 连接安卓设备，排查 ADB 连接问题，在电脑上安装 APK、截图和导出日志。
 
-**Status:** The [v0.1.0-preview.4 Windows x64 prerelease](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.4) is public. Its package passed automated build and extracted-startup checks; two-device batch installation, failure-specific messages and failed-install retry have no recorded physical-device acceptance. See the [validation record](docs/VALIDATION.md).
+**Status:** The [v0.1.0-preview.5 Windows x64 prerelease](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.5) is public. Its package passed automated build and extracted-startup checks; two-device batch installation, failure-specific messages and failed-install retry have no recorded physical-device acceptance. See the [validation record](docs/VALIDATION.md).
 
-**状态：** [v0.1.0-preview.4 Windows x64 公开预览版](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.4)已发布。程序包通过自动化构建和解压后启动检查；两台真机批量安装、错误细分提示和失败项重试尚无真机验收记录，详见[验证记录](docs/VALIDATION.md)。
+**状态：** [v0.1.0-preview.5 Windows x64 公开预览版](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.5)已发布。程序包通过自动化构建和解压后启动检查；两台真机批量安装、错误细分提示和失败项重试尚无真机验收记录，详见[验证记录](docs/VALIDATION.md)。
 
 [完整中文使用指南](docs/USER-GUIDE.zh-CN.md) · [中文准备与运行](#使用前准备) · [English setup](#english) · [Validation record / 验证记录](docs/VALIDATION.md)
 
@@ -25,13 +25,13 @@ Actual Flutter rendering with demo data; not a Windows or physical-device accept
 - 检查本机 ADB、设备状态和一个指定 TCP 端口，给出下一步建议。
 - 对所选设备安装 APK、保存 PNG 截图、查看基本信息、导出最近 500 行 logcat。
 - 选择同一个 APK 并明确勾选多台已连接设备，依次安装并查看每台设备的结果；单台失败后继续处理后续设备。
-- 开发中候选支持在当前设备安装结束后停止后续批量目标，并明确选择未执行目标继续；此功能尚未包含在 preview.4 下载包中。
+- 支持在当前设备安装结束后停止后续批量目标，并明确选择未执行目标继续。
 - 导出不含设备标识、网络地址或原始输出的 JSON 诊断报告。
 - 中文/英文界面，跟随系统深浅主题，本机运行，无遥测。
 
 ### 使用前准备
 
-1. 从 [preview.4 发布页](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.4)下载 Windows x64 ZIP，**完整解压**后运行 `adb_device_desk.exe`。
+1. 从 [preview.5 发布页](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.5)下载 Windows x64 ZIP，**完整解压**后运行 `adb_device_desk.exe`。
 2. 从 [Android 官方页面](https://developer.android.com/tools/releases/platform-tools)下载 Platform-Tools 并解压。在应用「设置」中选择其中的 `adb.exe`，点击「验证并保存」。如果已将 ADB 加入 PATH，保留 `adb` 即可。
 3. USB 连接：开启设备的开发者选项与 USB 调试，使用数据线连接，在设备上接受授权；刷新并选择设备。
 4. 无线连接：在 Android 11+ 设备开启无线调试，先用配对弹窗的端口和六位码配对，再用无线调试主页面的**连接端口**连接；刷新并选择设备。
@@ -95,7 +95,7 @@ flutter run -d windows
 
 Use `--dart-define=DEMO=true` for a clearly marked, device-free demo. Windows x64 is the initial target. An open TCP port is not proof of ADB service identity or authorization. To install on several ready devices, choose **Batch install APK**, check each target, choose one APK and confirm; results appear per device. Installs run sequentially with a three-minute timeout for each device. Split packages, screen mirroring, other batch actions and automatic reconnection are outside v0.1.
 
-The development candidate can stop the remaining batch queue after the current device finishes, then explicitly select unattempted targets to continue. This is not in the preview.4 download and has no physical-device acceptance yet.
+Preview.5 can stop the remaining batch queue after the current device finishes, then explicitly select unattempted targets to continue. These controls passed automated regression checks; physical-device acceptance is not recorded.
 
 Diagnostic JSON uses a field whitelist and omits addresses, serials, file paths, pairing codes and raw logs. Exported logcat is intentionally raw and requires user review before sharing. ADB is installed separately from Google's official distribution.
 
