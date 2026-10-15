@@ -4,6 +4,14 @@
 
 > 各节保留原事件日期和当时状态。当前下载入口以 [README](../README.md) 为准；早期“尚未公开”的记录是历史快照，不表示当前没有下载页。
 
+## Stop and continue / 停止后续安装与继续（2026-10-15）
+
+候选 `ca8430700f609af23134b94848dc79506e3d1520` 的 [CI 38721105800](https://github.com/TolkmisLK/adb-device-desk/actions/runs/38721105800) 通过 Linux 与 Windows 检查；Windows 记录 43 项测试通过、1 项截图测试跳过。新增用例覆盖完成当前设备后停止、保留成功结果、明确选择未执行目标并重新核对设备状态后继续。Windows 首轮发现测试没有等待真实文件异步检查完成，修正等待点后完整回归通过；生产逻辑没有为测试改动。
+
+[v0.1.0-preview.5](https://github.com/TolkmisLK/adb-device-desk/releases/tag/v0.1.0-preview.5) 已公开，指向合并提交 `b534bc228bea4d51196cd1b718e35b0002bd9cbd`。[发布流程 38721851639](https://github.com/TolkmisLK/adb-device-desk/actions/runs/38721851639) 再次执行完整构建和解压启动门禁。公开 ZIP 的 SHA-256 元数据、校验文件与启动报告中的包摘要一致为 `edf71666805be2ec6efb411ed8498e8a6029d44ff04a5296d63b28c05cab91e8`；报告记录窗口可见、响应 10 秒、DLL 校验与正常退出。`physicalDeviceTested=false`、`cleanMachineTested=false`。本轮没有运行本地 Flutter、应用、ADB 或真机测试。
+
+Candidate CI passed on Linux and Windows, including 43 passed Windows tests and one skipped capture test. Controlled fixtures cover stopping after the current target and explicitly continuing selected unattempted targets. The test's Windows async wait was corrected; production behavior was not changed to satisfy it. The public preview targets the exact merge above; release CI rebuilt and checked extracted startup. Public asset digest, checksum file and startup report agree. No new local app, ADB, physical-device or clean-machine acceptance was performed.
+
 ## Batch-install retry / 批量安装失败项重试（2026-09-28）
 
 Candidate `2cb3de47cbf822a811d3c0737d59161551a704bc` passed both jobs in [CI 36401754623](https://github.com/TolkmisLK/adb-device-desk/actions/runs/36401754623): formatting, static analysis, core checks, Flutter tests, Windows portable build and extracted-startup checks. New controlled widget tests cover explicit failed-target selection, cancellation without installation, preserving earlier successes after retry and aborting if a selected device goes offline before final confirmation. These use a fake ADB service and a temporary APK fixture; they do not install on physical devices. No local application, ADB or hardware tests were run for this change.
