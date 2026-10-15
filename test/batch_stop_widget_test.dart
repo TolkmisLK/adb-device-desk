@@ -14,11 +14,16 @@ class StopFixture extends DemoService {
   final releaseFirst = Completer<void>();
   final attempted = <String>[];
   final readWaiters = <int, Completer<void>>{};
+  final attemptWaiters = <int, Completer<void>>{};
   int deviceReads = 0;
 
   Future<void> waitForRead(int count) => deviceReads >= count
       ? Future<void>.value()
       : (readWaiters[count] ??= Completer<void>()).future;
+
+  Future<void> waitForAttempts(int count) => attempted.length >= count
+      ? Future<void>.value()
+      : (attemptWaiters[count] ??= Completer<void>()).future;
 
   @override
   Future<List<AdbDevice>> devices() async {
@@ -34,6 +39,7 @@ class StopFixture extends DemoService {
   @override
   Future<void> install(String serial, String path) async {
     attempted.add(serial);
+    attemptWaiters.remove(attempted.length)?.complete();
     if (serial == 'one') {
       firstStarted.complete();
       await releaseFirst.future;
@@ -138,10 +144,14 @@ void main() {
         ),
         matching: find.text('Continue'),
       );
+      final nextAttempt = service.attempted.length + 1;
       await tester.runAsync(() async {
         await tester.tap(confirmationContinue);
         await service
             .waitForRead(nextRead + 1)
+            .timeout(const Duration(seconds: 10));
+        await service
+            .waitForAttempts(nextAttempt)
             .timeout(const Duration(seconds: 10));
         await Future<void>.delayed(Duration.zero);
       });
