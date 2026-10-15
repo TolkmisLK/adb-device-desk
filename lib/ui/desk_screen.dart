@@ -57,11 +57,34 @@ class _DeskScreenState extends State<DeskScreen> {
   String? batchCurrent;
   String? batchApkPath;
   String? batchApkName;
+  List<String> batchSkippedTargets = [];
+  bool batchRunning = false;
+  bool batchStopRequested = false;
+  int batchRunTotal = 0;
+  int batchRunCompleted = 0;
+  List<String> batchRunTargets = [];
+  Set<String> batchRunCompletedSerials = {};
   int page = 0;
 
   String t(String zh, String en) => widget.english ? en : zh;
   String batchStatus(String serial) {
     if (batchCurrent == serial) return t('正在安装', 'Installing');
+    if (batchSkippedTargets.contains(serial)) {
+      for (final result in batchResults) {
+        if (result.serial == serial && !result.succeeded) {
+          return t(
+            '本轮未执行；上次失败',
+            'Not attempted in this run; previously failed',
+          );
+        }
+      }
+      return t('未执行', 'Not attempted');
+    }
+    if (batchRunning &&
+        batchRunTargets.contains(serial) &&
+        !batchRunCompletedSerials.contains(serial)) {
+      return t('等待中', 'Pending');
+    }
     for (final result in batchResults) {
       if (result.serial == serial) {
         return result.succeeded
@@ -69,22 +92,42 @@ class _DeskScreenState extends State<DeskScreen> {
             : message(result.errorCode!, widget.english);
       }
     }
-    return t('等待中', 'Pending');
+    return batchRunning ? t('等待中', 'Pending') : t('未执行', 'Not attempted');
   }
 
   List<String> get failedBatchTargets => [
     for (final serial in batchTargets)
-      if (batchResults.any(
-        (result) => result.serial == serial && !result.succeeded,
-      ))
+      if (!batchSkippedTargets.contains(serial) &&
+          batchResults.any(
+            (result) => result.serial == serial && !result.succeeded,
+          ))
         serial,
   ];
 
+  Set<String> get batchPendingSerials => {
+    ...batchSkippedTargets,
+    if (batchRunning)
+      for (final serial in batchRunTargets)
+        if (!batchRunCompletedSerials.contains(serial) &&
+            serial != batchCurrent)
+          serial,
+  };
+
   int get batchSucceededCount => batchResults
-      .where((result) => result.serial != batchCurrent && result.succeeded)
+      .where(
+        (result) =>
+            result.serial != batchCurrent &&
+            !batchPendingSerials.contains(result.serial) &&
+            result.succeeded,
+      )
       .length;
   int get batchFailedCount => batchResults
-      .where((result) => result.serial != batchCurrent && !result.succeeded)
+      .where(
+        (result) =>
+            result.serial != batchCurrent &&
+            !batchPendingSerials.contains(result.serial) &&
+            !result.succeeded,
+      )
       .length;
 
   AdbDevice? get device {
@@ -292,19 +335,37 @@ class _DeskScreenState extends State<DeskScreen> {
       batchCurrent = null;
       batchApkPath = apk.path;
       batchApkName = apk.name;
+      batchSkippedTargets = [];
     });
     await runBatchInstall(serials, apk.path);
   }
 
   Future<void> runBatchInstall(List<String> serials, String apkPath) async {
-    await installBatch(
+    final previouslySkipped = List<String>.of(batchSkippedTargets);
+    setState(() {
+      batchRunning = true;
+      batchStopRequested = false;
+      batchSkippedTargets = previouslySkipped
+          .where((serial) => !serials.contains(serial))
+          .toList();
+      batchRunTotal = serials.length;
+      batchRunCompleted = 0;
+      batchRunTargets = serials;
+      batchRunCompletedSerials = {};
+    });
+    final completed = await installBatch(
       service,
       serials,
       apkPath,
+      stopRequested: () => batchStopRequested,
       onProgress: (current, completed) {
         if (mounted) {
           setState(() {
             batchCurrent = current;
+            batchRunCompleted = completed.length;
+            batchRunCompletedSerials = {
+              for (final result in completed) result.serial,
+            };
             final merged = {
               for (final result in batchResults) result.serial: result,
               for (final result in completed) result.serial: result,
@@ -318,11 +379,148 @@ class _DeskScreenState extends State<DeskScreen> {
       },
     );
     if (!mounted) return;
+    final newlySkipped = serials
+        .where((serial) => !completed.any((result) => result.serial == serial))
+        .toList();
+    final skipped = [
+      ...previouslySkipped.where((serial) => !serials.contains(serial)),
+      ...newlySkipped,
+    ];
+    setState(() {
+      batchRunning = false;
+      batchCurrent = null;
+      batchSkippedTargets = skipped;
+      batchRunTargets = [];
+      batchRunCompletedSerials = {};
+    });
     final succeeded = batchResults.where((result) => result.succeeded).length;
-    done(
-      '批量安装完成：$succeeded/${batchTargets.length} 台成功，${failedBatchTargets.length} 台失败。',
-      'Batch installation complete: $succeeded/${batchTargets.length} succeeded, ${failedBatchTargets.length} failed.',
+    if (newlySkipped.isNotEmpty) {
+      done(
+        '已停止后续安装：本轮 ${newlySkipped.length} 台未执行。当前设备的安装已结束；可明确选择未执行项继续。',
+        'Stopped before the remaining installs: ${newlySkipped.length} not attempted in this run. The current install has finished; select pending targets explicitly to continue.',
+      );
+    } else {
+      done(
+        '批量安装完成：$succeeded/${batchTargets.length} 台成功，${failedBatchTargets.length} 台失败。',
+        'Batch installation complete: $succeeded/${batchTargets.length} succeeded, ${failedBatchTargets.length} failed.',
+      );
+    }
+  }
+
+  void stopBatchAfterCurrent() {
+    if (!batchRunning || batchStopRequested) return;
+    setState(() => batchStopRequested = true);
+  }
+
+  Future<void> continueSkippedBatch() async {
+    final skipped = List<String>.of(batchSkippedTargets);
+    final apkPath = batchApkPath;
+    final apkName = batchApkName;
+    if (skipped.isEmpty || apkPath == null || apkName == null) return;
+    if (!await File(apkPath).exists()) {
+      done(
+        '上次使用的 APK 已不可读取。请重新发起批量安装并选择文件。',
+        'The previous APK is no longer available. Start a new batch installation and choose the file again.',
+      );
+      return;
+    }
+
+    final fresh = await service.devices();
+    if (!mounted) return;
+    final bySerial = {for (final value in fresh) value.serial: value};
+    setState(() => devices = fresh);
+    final chosen = <String>{};
+    final serials = await showDialog<List<String>>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, update) => AlertDialog(
+          title: Text(t('选择未执行目标', 'Select unattempted targets')),
+          content: SizedBox(
+            width: 420,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 400),
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  Text(
+                    t(
+                      '已重新读取设备状态。仅列出本轮未执行的目标；请逐台勾选。',
+                      'Device states were refreshed. Only targets not attempted in this run are listed; select each one explicitly.',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  for (final serial in skipped)
+                    CheckboxListTile(
+                      value: chosen.contains(serial),
+                      title: Text(bySerial[serial]?.title ?? serial),
+                      subtitle: Text(
+                        '$serial · ${bySerial[serial] == null
+                            ? t('未检测到', 'Not detected')
+                            : bySerial[serial]!.ready
+                            ? t('已连接', 'Ready')
+                            : message(bySerial[serial]!.state, widget.english)}',
+                      ),
+                      onChanged: bySerial[serial]?.ready == true
+                          ? (checked) => update(() {
+                              if (checked == true) {
+                                chosen.add(serial);
+                              } else {
+                                chosen.remove(serial);
+                              }
+                            })
+                          : null,
+                    ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(t('取消', 'Cancel')),
+            ),
+            FilledButton(
+              onPressed: chosen.isEmpty
+                  ? null
+                  : () => Navigator.pop(
+                      context,
+                      skipped.where(chosen.contains).toList(),
+                    ),
+              child: Text(t('继续', 'Continue')),
+            ),
+          ],
+        ),
+      ),
     );
+    if (serials == null || !mounted) return;
+    if (!await confirm(
+      t('确认继续未执行项', 'Confirm unattempted installs'),
+      '$apkName\n\n${t('仅对以下 ${serials.length} 台设备执行安装。', 'Install only on these ${serials.length} devices.')}\n\n${serials.join('\n')}',
+    )) {
+      return;
+    }
+    final latest = await service.devices();
+    if (!mounted) return;
+    setState(() => devices = latest);
+    final ready = {
+      for (final value in latest)
+        if (value.ready) value.serial,
+    };
+    if (!ready.containsAll(serials)) {
+      done(
+        '目标设备状态已变化，本次继续未开始。请重新核对未执行项。',
+        'A target device changed state. No install was started; review the unattempted targets again.',
+      );
+      return;
+    }
+    if (!await File(apkPath).exists()) {
+      done(
+        '上次使用的 APK 已不可读取，本次继续未开始。',
+        'The previous APK is no longer available. No install was started.',
+      );
+      return;
+    }
+    await runBatchInstall(serials, apkPath);
   }
 
   Future<void> retryFailedBatch() async {
@@ -1006,15 +1204,48 @@ class _DeskScreenState extends State<DeskScreen> {
                 const SizedBox(height: 8),
                 Text(
                   t(
-                    '共 ${batchTargets.length} 台 · 成功 $batchSucceededCount · 失败 $batchFailedCount · 待处理 ${batchTargets.length - batchSucceededCount - batchFailedCount - (batchCurrent == null ? 0 : 1)}${batchCurrent == null ? '' : ' · 正在安装 1'}',
-                    '${batchTargets.length} total · $batchSucceededCount succeeded · $batchFailedCount failed · ${batchTargets.length - batchSucceededCount - batchFailedCount - (batchCurrent == null ? 0 : 1)} pending${batchCurrent == null ? '' : ' · 1 installing'}',
+                    '共 ${batchTargets.length} 台 · 成功 $batchSucceededCount · 失败 $batchFailedCount · ${batchRunning ? '待处理' : '未执行'} ${batchTargets.length - batchSucceededCount - batchFailedCount - (batchCurrent == null ? 0 : 1)}${batchCurrent == null ? '' : ' · 正在安装 1'}',
+                    '${batchTargets.length} total · $batchSucceededCount succeeded · $batchFailedCount failed · ${batchTargets.length - batchSucceededCount - batchFailedCount - (batchCurrent == null ? 0 : 1)} ${batchRunning ? 'pending' : 'not attempted'}${batchCurrent == null ? '' : ' · 1 installing'}',
                   ),
                 ),
+                if (batchRunning) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    t(
+                      batchStopRequested
+                          ? '已请求停止；当前设备安装结束后不再启动下一台。'
+                          : '停止只阻止下一台开始；当前安装会运行到完成或超时。',
+                      batchStopRequested
+                          ? 'Stop requested. No new install will start after the current one finishes.'
+                          : 'Stopping prevents the next install; the current one will finish or time out.',
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed:
+                        batchStopRequested || batchRunCompleted >= batchRunTotal
+                        ? null
+                        : stopBatchAfterCurrent,
+                    icon: const Icon(Icons.stop_circle_outlined),
+                    label: Text(t('完成当前设备后停止', 'Stop after current device')),
+                  ),
+                ],
                 for (final serial in batchTargets)
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text('$serial: ${batchStatus(serial)}'),
                   ),
+                if (batchSkippedTargets.isNotEmpty && !batchRunning) ...[
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: button(
+                      t('继续未执行项', 'Continue unattempted installs'),
+                      Icons.play_arrow,
+                      continueSkippedBatch,
+                      enabled: !widget.demo,
+                    ),
+                  ),
+                ],
                 if (failedBatchTargets.isNotEmpty && batchCurrent == null) ...[
                   const SizedBox(height: 12),
                   Align(

@@ -32,12 +32,15 @@ Future<List<InstallResult>> installBatch(
   List<String> serials,
   String path, {
   void Function(String? current, List<InstallResult> completed)? onProgress,
+  bool Function()? stopRequested,
 }) async {
   if (serials.isEmpty || serials.toSet().length != serials.length) {
     throw const DeskException('invalid_device');
   }
   final results = <InstallResult>[];
   for (final serial in serials) {
+    // Let an in-flight ADB command finish; do not start the next target.
+    if (stopRequested?.call() == true) break;
     onProgress?.call(serial, List.unmodifiable(results));
     String? errorCode;
     try {

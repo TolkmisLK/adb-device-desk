@@ -25,6 +25,7 @@ Actual Flutter rendering with demo data; not a Windows or physical-device accept
 - 检查本机 ADB、设备状态和一个指定 TCP 端口，给出下一步建议。
 - 对所选设备安装 APK、保存 PNG 截图、查看基本信息、导出最近 500 行 logcat。
 - 选择同一个 APK 并明确勾选多台已连接设备，依次安装并查看每台设备的结果；单台失败后继续处理后续设备。
+- 开发中候选支持在当前设备安装结束后停止后续批量目标，并明确选择未执行目标继续；此功能尚未包含在 preview.4 下载包中。
 - 导出不含设备标识、网络地址或原始输出的 JSON 诊断报告。
 - 中文/英文界面，跟随系统深浅主题，本机运行，无遥测。
 
@@ -93,6 +94,8 @@ flutter run -d windows
 ```
 
 Use `--dart-define=DEMO=true` for a clearly marked, device-free demo. Windows x64 is the initial target. An open TCP port is not proof of ADB service identity or authorization. To install on several ready devices, choose **Batch install APK**, check each target, choose one APK and confirm; results appear per device. Installs run sequentially with a three-minute timeout for each device. Split packages, screen mirroring, other batch actions and automatic reconnection are outside v0.1.
+
+The development candidate can stop the remaining batch queue after the current device finishes, then explicitly select unattempted targets to continue. This is not in the preview.4 download and has no physical-device acceptance yet.
 
 Diagnostic JSON uses a field whitelist and omits addresses, serials, file paths, pairing codes and raw logs. Exported logcat is intentionally raw and requires user review before sharing. ADB is installed separately from Google's official distribution.
 

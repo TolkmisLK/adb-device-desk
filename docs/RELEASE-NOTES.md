@@ -1,3 +1,9 @@
+## preview.5：停止后续安装与继续未执行项 / Stop and continue
+
+批量安装期间可选择“完成当前设备后停止”，当前 ADB 安装仍会执行到完成或超时，后续目标不会开始。未执行项与失败项分开显示；可通过“继续未执行项”重新读取设备状态、逐台勾选、再次确认 APK 与目标后继续，已成功结果保留。此流程有自动化核心和组件覆盖，本轮没有新增本地应用、ADB、双设备或真机验收。
+
+During a batch, “Stop after current device” lets the active ADB command finish or time out and prevents later targets from starting. Unattempted targets are separate from failures. “Continue unattempted installs” refreshes device states and requires explicit selection and APK/target confirmation; earlier successes remain. Core and widget automation cover this path; no new local application, ADB, two-device or physical-device acceptance is claimed.
+
 ADB Device Desk for Windows x64 (public preview).
 
 - View connected Android devices and their authorization states.
